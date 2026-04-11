@@ -15,11 +15,22 @@ export default defineConfig({
       exclude: [
         "node_modules/",
         "src/test/",
-        "src/app/layout.tsx",
-        "src/app/page.tsx",
+        "src/app/",
+        "src/components/",
+        "src/lib/supabase/", // infrastructure glue — tested via integration, not unit tests
         "**/*.d.ts",
         "*.config.*",
       ],
+      // Enforce 80% coverage on the calculation engine.
+      // UI components are excluded above — they get E2E coverage later.
+      thresholds: {
+        "src/lib/**": {
+          statements: 80,
+          branches: 80,
+          functions: 80,
+          lines: 80,
+        },
+      },
     },
   },
   resolve: {
