@@ -17,6 +17,7 @@ export default defineConfig({
         "src/test/",
         "src/app/",
         "src/components/",
+        "src/lib/supabase/", // infrastructure glue — tested via integration, not unit tests
         "**/*.d.ts",
         "*.config.*",
       ],
