@@ -50,6 +50,10 @@ yarn-error.log*
 coverage/
 .nyc_output
 
+# GCP credentials — NEVER commit
+credentials/
+
 # Misc
 *.pem
 .eslintcache
+next-env.d.ts
