@@ -191,32 +191,32 @@ CREATE INDEX idx_deal_revenue_allocations_deal_id
 
 -- =============================================================
 -- RLS POLICIES: deals
--- Org-scoped using auth.user_org_ids() from MMC-13 migration.
+-- Org-scoped using public.user_org_ids() from MMC-13 migration.
 -- =============================================================
 
 CREATE POLICY "deals_select"
   ON public.deals FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "deals_insert"
   ON public.deals FOR INSERT
   TO authenticated
   WITH CHECK (
-    org_id = ANY(auth.user_org_ids())
+    org_id = ANY(public.user_org_ids())
     AND created_by = auth.uid()
   );
 
 CREATE POLICY "deals_update"
   ON public.deals FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "deals_delete"
   ON public.deals FOR DELETE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -229,7 +229,7 @@ CREATE POLICY "deal_revenue_allocations_select"
   TO authenticated
   USING (
     deal_id IN (
-      SELECT id FROM public.deals WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.deals WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -238,7 +238,7 @@ CREATE POLICY "deal_revenue_allocations_insert"
   TO authenticated
   WITH CHECK (
     deal_id IN (
-      SELECT id FROM public.deals WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.deals WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -247,7 +247,7 @@ CREATE POLICY "deal_revenue_allocations_update"
   TO authenticated
   USING (
     deal_id IN (
-      SELECT id FROM public.deals WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.deals WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -256,7 +256,7 @@ CREATE POLICY "deal_revenue_allocations_delete"
   TO authenticated
   USING (
     deal_id IN (
-      SELECT id FROM public.deals WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.deals WHERE org_id = ANY(public.user_org_ids())
     )
   );
 

@@ -107,7 +107,7 @@ CREATE INDEX idx_organization_members_org_id
 
 
 -- =============================================================
--- RLS HELPER FUNCTION: auth.user_org_ids()
+-- RLS HELPER FUNCTION: public.user_org_ids()
 -- Returns all org_ids the current user belongs to as an array.
 -- STABLE: Postgres may cache result within a transaction.
 -- SECURITY DEFINER: runs as the function owner, not the caller,
@@ -116,7 +116,7 @@ CREATE INDEX idx_organization_members_org_id
 -- membership resolution — keep it simple and auditable.
 -- =============================================================
 
-CREATE OR REPLACE FUNCTION auth.user_org_ids()
+CREATE OR REPLACE FUNCTION public.user_org_ids()
 RETURNS uuid[]
 LANGUAGE sql
 STABLE
@@ -158,15 +158,15 @@ CREATE POLICY "profiles_update_own"
 CREATE POLICY "organizations_select"
   ON public.organizations FOR SELECT
   TO authenticated
-  USING (id = ANY(auth.user_org_ids()));
+  USING (id = ANY(public.user_org_ids()));
 
 -- Any member can update org fields in v0 — owner-only enforcement
 -- lives in the application layer. Tighten to role check in v1.
 CREATE POLICY "organizations_update"
   ON public.organizations FOR UPDATE
   TO authenticated
-  USING (id = ANY(auth.user_org_ids()))
-  WITH CHECK (id = ANY(auth.user_org_ids()));
+  USING (id = ANY(public.user_org_ids()))
+  WITH CHECK (id = ANY(public.user_org_ids()));
 
 -- Authenticated users can create orgs (created_by must be themselves).
 CREATE POLICY "organizations_insert"
@@ -183,14 +183,14 @@ CREATE POLICY "organizations_insert"
 CREATE POLICY "org_members_select"
   ON public.organization_members FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 -- Any org member can add new members in v0 — admin-only enforcement
 -- lives in the application layer. Tighten in v1.
 CREATE POLICY "org_members_insert"
   ON public.organization_members FOR INSERT
   TO authenticated
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 -- Users can always remove themselves (leave org).
 -- Removal of others is allowed for any org member in v0 —
@@ -200,7 +200,7 @@ CREATE POLICY "org_members_delete"
   TO authenticated
   USING (
     user_id = auth.uid()                  -- leave org (self)
-    OR org_id = ANY(auth.user_org_ids())  -- remove others (app enforces role)
+    OR org_id = ANY(public.user_org_ids())  -- remove others (app enforces role)
   );
 
 

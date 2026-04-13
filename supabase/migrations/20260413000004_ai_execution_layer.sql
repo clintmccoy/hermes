@@ -456,7 +456,7 @@ CREATE POLICY "gate_config_profiles_select"
   TO authenticated
   USING (
     org_id IS NULL                          -- system defaults: visible to all
-    OR org_id = ANY(auth.user_org_ids())    -- org custom profiles
+    OR org_id = ANY(public.user_org_ids())    -- org custom profiles
   );
 
 
@@ -471,7 +471,7 @@ CREATE POLICY "gate_config_entries_select"
   USING (
     profile_id IN (
       SELECT id FROM public.gate_config_profiles
-      WHERE org_id IS NULL OR org_id = ANY(auth.user_org_ids())
+      WHERE org_id IS NULL OR org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -483,21 +483,21 @@ CREATE POLICY "gate_config_entries_select"
 CREATE POLICY "conversation_sessions_select"
   ON public.conversation_sessions FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "conversation_sessions_insert"
   ON public.conversation_sessions FOR INSERT
   TO authenticated
   WITH CHECK (
-    org_id = ANY(auth.user_org_ids())
+    org_id = ANY(public.user_org_ids())
     AND created_by = auth.uid()
   );
 
 CREATE POLICY "conversation_sessions_update"
   ON public.conversation_sessions FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -511,7 +511,7 @@ CREATE POLICY "conversation_refs_select"
   USING (
     conversation_session_id IN (
       SELECT id FROM public.conversation_sessions
-      WHERE org_id = ANY(auth.user_org_ids())
+      WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -521,7 +521,7 @@ CREATE POLICY "conversation_refs_insert"
   WITH CHECK (
     conversation_session_id IN (
       SELECT id FROM public.conversation_sessions
-      WHERE org_id = ANY(auth.user_org_ids())
+      WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -533,21 +533,21 @@ CREATE POLICY "conversation_refs_insert"
 CREATE POLICY "analysis_jobs_select"
   ON public.analysis_jobs FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "analysis_jobs_insert"
   ON public.analysis_jobs FOR INSERT
   TO authenticated
   WITH CHECK (
-    org_id = ANY(auth.user_org_ids())
+    org_id = ANY(public.user_org_ids())
     AND created_by = auth.uid()
   );
 
 CREATE POLICY "analysis_jobs_update"
   ON public.analysis_jobs FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -560,7 +560,7 @@ CREATE POLICY "job_gates_select"
   TO authenticated
   USING (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -569,7 +569,7 @@ CREATE POLICY "job_gates_update"
   TO authenticated
   USING (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -582,13 +582,13 @@ CREATE POLICY "job_gates_update"
 CREATE POLICY "extracted_inputs_select"
   ON public.extracted_inputs FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "extracted_inputs_update"
   ON public.extracted_inputs FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -601,7 +601,7 @@ CREATE POLICY "job_gate_corrections_select"
   TO authenticated
   USING (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -610,7 +610,7 @@ CREATE POLICY "job_gate_corrections_insert"
   TO authenticated
   WITH CHECK (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -624,7 +624,7 @@ CREATE POLICY "field_review_events_select"
   TO authenticated
   USING (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -633,7 +633,7 @@ CREATE POLICY "field_review_events_insert"
   TO authenticated
   WITH CHECK (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
     AND reviewed_by = auth.uid()
   );
@@ -649,6 +649,6 @@ CREATE POLICY "agent_events_select"
   TO authenticated
   USING (
     job_id IN (
-      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.analysis_jobs WHERE org_id = ANY(public.user_org_ids())
     )
   );

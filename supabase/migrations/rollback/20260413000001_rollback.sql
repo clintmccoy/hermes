@@ -14,7 +14,7 @@ DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
 -- Functions
 DROP FUNCTION IF EXISTS public.handle_new_user();
 DROP FUNCTION IF EXISTS public.set_updated_at();
-DROP FUNCTION IF EXISTS auth.user_org_ids();
+DROP FUNCTION IF EXISTS public.user_org_ids();
 
 -- Tables (members first — FK dependency on organizations + auth.users)
 DROP TABLE IF EXISTS public.organization_members;

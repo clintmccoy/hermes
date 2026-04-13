@@ -275,13 +275,13 @@ CREATE INDEX idx_document_pages_job_id
 CREATE POLICY "inbound_emails_select"
   ON public.inbound_emails FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "inbound_emails_update"
   ON public.inbound_emails FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -291,21 +291,21 @@ CREATE POLICY "inbound_emails_update"
 CREATE POLICY "uploaded_files_select"
   ON public.uploaded_files FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE POLICY "uploaded_files_insert"
   ON public.uploaded_files FOR INSERT
   TO authenticated
   WITH CHECK (
-    org_id = ANY(auth.user_org_ids())
+    org_id = ANY(public.user_org_ids())
     AND uploaded_by = auth.uid()
   );
 
 CREATE POLICY "uploaded_files_update"
   ON public.uploaded_files FOR UPDATE
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()))
-  WITH CHECK (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()))
+  WITH CHECK (org_id = ANY(public.user_org_ids()));
 
 
 -- =============================================================
@@ -318,7 +318,7 @@ CREATE POLICY "document_refs_select"
   TO authenticated
   USING (
     uploaded_file_id IN (
-      SELECT id FROM public.uploaded_files WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.uploaded_files WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -327,7 +327,7 @@ CREATE POLICY "document_refs_insert"
   TO authenticated
   WITH CHECK (
     uploaded_file_id IN (
-      SELECT id FROM public.uploaded_files WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.uploaded_files WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -336,7 +336,7 @@ CREATE POLICY "document_refs_update"
   TO authenticated
   USING (
     uploaded_file_id IN (
-      SELECT id FROM public.uploaded_files WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.uploaded_files WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -353,7 +353,7 @@ CREATE POLICY "document_processing_jobs_select"
   TO authenticated
   USING (
     uploaded_file_id IN (
-      SELECT id FROM public.uploaded_files WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.uploaded_files WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -368,7 +368,7 @@ CREATE POLICY "document_pages_select"
   TO authenticated
   USING (
     uploaded_file_id IN (
-      SELECT id FROM public.uploaded_files WHERE org_id = ANY(auth.user_org_ids())
+      SELECT id FROM public.uploaded_files WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
