@@ -4,3 +4,5 @@ dist
 build
 public
 *.md
+# Generated files
+src/lib/supabase/database.types.ts
