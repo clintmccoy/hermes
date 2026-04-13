@@ -5,4 +5,4 @@ build
 public
 *.md
 # Generated files
-src/types/supabase.ts
+src/lib/supabase/database.types.ts
