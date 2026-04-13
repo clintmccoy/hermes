@@ -75,6 +75,10 @@ Full PRD + ADR gap review against data schema v0.5. Agreed changes are documente
 - **`condo_regime` on `ownership_structure`** — condo is an ownership/legal structure, not an asset type
 - **Portfolio hierarchy via `parent_asset_id`** — parent asset = deal envelope; child assets = individual buildings/parcels
 
+### ADR
+
+- `docs/adr/011-schema-v06-structural-patterns.md` — new ADR recording the seven structural decisions from this session: computed/override split, spaces as required FK for monetary events, flexible gate system, portfolio hierarchy via parent_asset_id, ownership_structure orthogonal to asset_type, source quality at source level, three-dimensional health score computed not stored
+
 ### Process
 
 - `CLAUDE.md` — added Schema Change Protocol (migration gate, safety rules, implementation sequence, ADR threshold) and Linear ticket priority guidelines
