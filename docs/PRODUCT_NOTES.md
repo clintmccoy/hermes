@@ -40,6 +40,23 @@ Decision-ready outputs include AI-drafted and/or user-drafted narrative elements
 
 ---
 
+## Computed vs. Override Pattern — User Behavior Insight
+
+CRE practitioners frequently want to see what *they* want to see in a model, independent of what the computation says. A user may disagree that upfront hazard or earthquake insurance premiums should be included in acquisition basis even if they were cash out the door at closing. Another user might simply say "just put $2M for carry costs" rather than letting the model derive it from the debt schedule.
+
+This pattern — explicit user override sitting alongside a computed value — will recur throughout the model. It is not a bug or a failure of the product; it is the reality of how experienced practitioners work. They have opinions, they have priors, and they need control.
+
+**Design implications:**
+
+- Anywhere the schema has a computed or AI-derived value, there should be a corresponding override mechanism that lets the user substitute their own number without destroying the computed value.
+- The computed value must never be discarded when an override is applied. Both must coexist so the system can always answer "what did the model think vs. what did the analyst choose."
+- Every override table in the schema must carry three audit columns: `overridden_by` (user FK), `overridden_at` (timestamp), and `override_reason` (optional free text). This ensures accountability — there is always a traceable answer to "who changed this and why."
+- Over time, patterns in override data are valuable training signals: if users consistently override a particular computed value in a particular direction, the model is probably wrong about something.
+
+**UX implication:** The UI should surface overrides visibly — show the computed value alongside the override, with a clear indicator of who made the change and when. This turns the "blame a specific user for dumb overrides" dynamic into a feature: transparency about who made which judgment calls is valuable for IC review, LP reporting, and team QA.
+
+---
+
 ## Level 4 — Stochastic / Monte Carlo Analysis
 
 Monte Carlo / range simulation on key model variables. Return distributions, downside risk quantification, probable scenario clusters, VaR-style risk metrics.

@@ -56,6 +56,13 @@ These rules apply at the end of EVERY session, without exception:
 
 Ticket states: `Backlog` → `Todo` → `In Progress` → `In Review` → `Done`
 
+### Linear ticket priority guidelines
+
+- **Urgent (P1)** — reserved for: production system down, major security breach, data loss, or something actively blocking users from core functionality right now. Use sparingly.
+- **High (P2)** — important work that is a blocker for other planned work, or a significant bug affecting users. Default for most schema and infrastructure work.
+- **Medium (P3)** — standard feature work, improvements, non-blocking bugs. Default for most feature tickets.
+- **Low (P4)** — nice-to-haves, minor polish, backlog items with no near-term dependency.
+
 ---
 
 ## Documentation Update Triggers
@@ -96,6 +103,44 @@ The following MCP tools are available in every session:
 - **Notion** — documentation and notes if needed
 - **Google Drive** — file access and sharing
 - **Gmail / Google Calendar** — communications if needed
+
+---
+
+## Schema Change Protocol
+
+These rules apply whenever a session involves database schema changes. Follow them without exception.
+
+### Before writing any migration SQL
+
+1. **Flag migration-required changes immediately** — any change to an existing table (add column, rename column, drop column, change type, restructure FK) must be called out explicitly before any code is written. Say: "This requires a migration — confirming you want to proceed before I write any SQL."
+2. **New tables on greenfield** are lower risk but still require confirmation before implementation.
+3. **Design must be approved in Notion/changelog before SQL is written** — never write migration SQL speculatively. The sequence is: propose in plain English → get explicit approval → write SQL → write application code.
+
+### Migration safety rules
+
+- New columns on existing tables must be **nullable or have a default** — no `NOT NULL` without an explicit backfill plan
+- **Column renames happen in three steps**: add new column → backfill → deprecate old. Never a single-step rename against production data.
+- **Dropping columns requires a deprecation period**: rename to `_deprecated_[name]` first, confirm nothing reads it, then drop in a follow-on migration
+- Every migration that modifies existing rows must have a **rollback SQL script**
+
+### Implementation sequence
+
+1. Schema designed and approved (Notion changelog updated)
+2. Linear ticket created with migration checklist
+3. Supabase branch created for the migration
+4. Migration SQL written and tested on branch
+5. `supabase gen types typescript` run — type errors resolved before any app code is written
+6. Migration merged to main
+7. Linear ticket updated
+
+### ADR threshold
+
+Create an ADR for any schema change that involves:
+- A new domain (3+ new tables)
+- A new structural pattern (e.g. computed/override split, polymorphic FK)
+- An irreversible or hard-to-rollback decision
+
+Single-table additions and enum expansions do not need an ADR.
 
 ---
 
