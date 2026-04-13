@@ -68,11 +68,20 @@ essentially a very good extraction tool with some modeling. Hermes is a full und
 platform. Cactus has no apparent viral/sharing mechanic — it's an analyst-side productivity
 tool, not a deal communication protocol.
 
+**Cactus pricing (2026):** Cactus uses a flat-rate subscription model (not per-user tiered).
+Exact pricing is not publicly disclosed — must contact Cactus for a quote. This contrasts
+with per-seat licensing (like ARGUS) and signals a willingness to bundle features under a
+single price point. For Hermes, this validates a flat-rate model for smaller teams and
+suggests the market is moving away from expensive per-seat licensing.
+
 **Primer (proprise.ai/primer)**
 - AI-powered document extraction into existing Excel models
 - Works across all asset classes (not multifamily-only like most competitors)
 - Maps data into your existing model, cites every extracted cell to source document + page
 - Top pick for acquisition teams per 2026 comparison reviews
+- **Pricing (2026):** Flat monthly fee per team; unlimited deal volume; minimum 10+ properties/month.
+  Exact pricing not publicly disclosed (custom quote). This flat-rate model aligns with Cactus pricing
+  strategy and signals market movement away from per-seat licensing.
 
 **Hermes vs. Primer:**
 Same extraction-to-Excel approach as Cactus. Both are augmentation tools for Excel workflows.
@@ -150,6 +159,28 @@ mechanic targeting brokers as distribution. That is Hermes's lane.
 - 93% of CRE leaders believe early AI adopters gain competitive edge
 - 59% of global CRE leaders plan to make AI a daily tool within one year
 - VC poured ~$1.7B into proptech in January 2026 alone (176% increase from Jan 2025)
+
+### CRE Transaction Distribution by Asset Class (2025–2026)
+
+Full-year 2025 CRE transaction volume: **$560.2B** across **176,445 properties** (+14.4% YoY).
+
+**By sector (Q4 2025 snapshot, representing broader 2025 trend):**
+- **Industrial:** $44.9B (+54.4% QoQ), largest sector by dollar volume. Industrial has become the
+  dominant growth driver, reflecting e-commerce logistics and last-mile delivery demand.
+- **Multifamily:** Strong annual performance with +19.9% median deal size growth. Remains the
+  second-largest asset class by transaction count and volume.
+- **Retail:** +13.4% YoY price growth; grocery-anchored and experiential retail (fast-casual
+  dining, in-person services) performing well. Traditional enclosed malls remain challenged.
+- **Office:** Median deal size down 23.8% since Q4 2013 (sustained secular decline). However,
+  high-quality, well-leased assets in major metros (NYC, SF, Boston) still command capital
+  (16 nine-figure deals in Q4 2025). Distressed secondary and tertiary markets remain weak.
+
+**Implication for Hermes:** Industrial and multifamily account for the vast majority of deal
+volume and capital. However, office—despite its structural headwinds—represents meaningful
+upside if Hermes's modular engine can unlock value in underwriting refinances, repositioning
+plays, and quality-plus-distress scenarios. The data confirms that universal asset class
+coverage is essential but that industrial + multifamily should be the initial go-to-market
+focus.
 
 **Adoption barriers (surveyed CRE leaders):**
 - Lack of internal expertise: 43%
@@ -257,6 +288,41 @@ transparent on pricing as a trust differentiator.
 
 ---
 
+### Google Document AI — Limitations for CRE
+
+Google Document AI is a strong baseline for document extraction but has documented constraints
+for CRE use:
+
+**Generic limitations:**
+- Accuracy variance: extraction quality depends heavily on document quality, format consistency,
+  and content complexity. Handwritten text, mixed fonts, dense tables, and multi-page layouts
+  reduce accuracy.
+- Limited customization: difficult to train or fine-tune for domain-specific terminology or
+  non-standard layouts
+- Pricing: per-page or per-document consumption model; can become expensive at scale (1,000+
+  documents/month)
+
+**CRE-specific challenges (confirmed):**
+- Diverse formats: CRE documents (OMs, rent rolls, appraisals, leases, T12s) mix legal text,
+  financial tables, inspection reports, and handwritten notes — no single standard format
+- Multi-page complexity: critical figures often buried in dense tables across multiple pages;
+  extraction order and context matter
+- Dense legal text: purchase agreements and lease clauses contain conditional logic and
+  exceptions that pure extraction cannot resolve without semantic understanding
+- Precision required: financial figures in CRE underwriting must be 100% accurate; extraction
+  errors cascade through the model
+
+**Implication for Hermes:** Google Document AI is viable for initial OM/rent roll extraction
+(70–80% accuracy is acceptable as a first pass if the UX surfaces confidence scores and human
+review), but it cannot be a black-box solution. The Analyst Studio must include a clear
+extraction review layer where analysts verify extracted figures before they propagate to the
+model. Consider Document AI as the extraction backbone with human-in-the-loop verification
+as a mandatory step. For maximum accuracy on complex documents (multi-property appraisals, syndicated
+deals with complex lease structures), a hybrid approach combining Document AI + Claude API for
+semantic extraction on high-uncertainty sections may be necessary.
+
+---
+
 ### Open-Source JS/TS Financial Calculation Libraries
 
 Evaluated for possible use in the Hermes client-side calculation engine:
@@ -327,40 +393,118 @@ differentiator. This should be a first-class module, not an afterthought.
 
 ---
 
-### IS Broker Tech Stack — Tools in Use Today
+### Hotel & Hospitality Underwriting — Distinct Mechanics vs. Multifamily/Industrial
 
-Investment sales and capital markets brokers in 2025–2026 operate across several distinct
-tool categories. Key findings from industry research:
+Hotel and hospitality properties require fundamentally different underwriting approaches than
+multifamily, industrial, or office. The core distinction: hotel revenue is *operational* and
+*volatile*, driven by management, demand, seasonality, and pricing — not by locked-in lease
+escalations. This drives material differences in risk, cap rates, and modeling.
 
-**OM creation and deal packaging:**
-- **Buildout** is the dominant platform for IS brokerage OM production — industry standard
-  for creating and distributing deal packages to buyers. Deeply embedded in brokerage
-  operations; has CRM functionality built in.
-- **DealGround** (AI-native, notable 2025/2026 entrant) — AI-driven OM extraction,
-  automatic lease data updates, ownership discovery tools. Targeting the broker side
-  of the market with intelligence on top of documents they already create.
-- High-end boutique brokers still use InDesign/Adobe toolchain for polished OMs; most
-  mid-market shops have standardized on Buildout.
+**Core metrics (RevPAR framework):**
 
-**Listing and deal exposure:**
-- CoStar / LoopNet (dominant, near-universal for exposure)
-- Crexi (challenger, gaining share in smaller/mid-market deals; faster, cheaper than CoStar)
-- Brevitas (integrated CRM + listing + data room; appealing to independent brokers)
+RevPAR = Revenue Per Available Room; calculated as (Total Revenue / Available Rooms) or
+(ADR × Occupancy). RevPAR is the single best indicator of a hotel's top-line performance
+relative to capacity.
 
-**CRM:** Salesforce (large shops), HubSpot (mid-market), RealNex (CRE-specific), Buildout
+- **ADR** (Average Daily Rate): the nightly room rate, re-priced constantly based on demand
+  and revenue management strategy. Hotels re-price every night, unlike multifamily leases that
+  roll annually.
+- **Occupancy:** percentage of available rooms sold. Hotels exhibit far more seasonality than
+  other CRE assets — coastal resorts may swing from 90%+ summer occupancy to 35% winter.
+  This contrasts with multifamily seasonal variance of 5–10%.
 
-**Data and comps:** CoStar (dominant), MSCI/RCA (institutional), DealGround (AI ownership intel)
+**Operating expense structure:**
 
-**Deal data rooms:** Box, Dropbox, Google Drive (generic); Dealpath for institutional buyers
+Hotel operating expenses consume 55–75% of gross revenue, versus 30–40% for multifamily.
+This high OpEx ratio requires precise modeling of: front-of-house (housekeeping, front desk,
+concierge), back-of-house (engineering, maintenance), food & beverage, marketing, management
+fees (3–5% of revenue typical), and reserve for capital replacement.
 
-**Critical gap for Hermes:** No broker tool today includes a buyer-facing underwriting or
-model-sharing layer. The standard broker workflow is: create OM in Buildout → upload to
-CoStar/Crexi → send a PDF link to buyers. The buyer's analyst then manually re-keys data
-into Excel from scratch. Hermes's email-inbound flow (forward a broker email → instant
-deal screen) plugs directly into this gap without asking brokers to change their existing
-workflow at all. This confirms that Hermes's broker distribution mechanic works *with*
-existing broker tools rather than competing with them. Brokers become passive distribution
-channels — they don't need to adopt anything.
+**Cap rate premium:**
+
+Hotel cap rates run 100–300 basis points higher than comparable multifamily assets, reflecting:
+- Management dependency: a weak GM or management company can crater returns
+- Operational risk: revenue is volatile; no long-term lease lock-in
+- Cyclical sensitivity: hotels are the most cyclically sensitive CRE asset class
+- Pricing risk: ADR pressure in downturns; cannot raise rates if occupancy falls
+
+**Scenario analysis and stress testing:**
+
+Hotel underwriting *requires* recession scenario modeling with 15–25% RevPAR decline (vs.
+multifamily, where 5–10% rent decline is typical for recession modeling). Lenders verify
+that debt service and preferred equity distributions remain covered at these stress levels.
+The COVID-19 pandemic demonstrated RevPAR can collapse by 50% YoY; defensible underwriting
+models for this tail risk.
+
+**Implications for Hermes:** Hotel underwriting is a critical and under-served niche within
+the universal asset class coverage. Hotel deals are fewer in count than multifamily/industrial
+but carry higher AUMs and more specialized underwriting needs. The engine should support:
+(1) RevPAR modeling by month/season with occupancy and ADR as separate drivers;
+(2) OpEx modeling at 60%+ of revenue by default;
+(3) Scenario analysis with pre-built recession templates;
+(4) Brand/comp analysis integration (RevPAR comps are a staple of hotel underwriting);
+(5) Management contract terms modeling (management fees, incentives, termination clauses).
+The first version can ship with multifamily + industrial focus, but hotel modeling should be
+designed-in from day one as a clear path to feature parity.
+
+---
+
+### Offering Memorandum (OM) Structure — Standard Sections
+
+A commercial real estate offering memorandum is a standardized document package brokers use
+to market deals to buyers. The structure is largely universal across asset classes, with
+sections tailored for asset type:
+
+**Standard OM sections (all asset classes):**
+
+1. **Executive Summary / Deal Overview**
+   - Investment thesis and expected returns
+   - Transaction structure (cap stack, equity, debt)
+   - Key investment highlights and risks
+   - Sponsor/operator team background and track record
+   
+2. **Property Description**
+   - Location, address, unit count / GLA
+   - Year built, major renovations
+   - Physical condition and capital needs
+   - Site plans, aerial photos
+
+3. **Financial Analysis**
+   - Historical T12 or trailing financial statements
+   - Rent roll (by unit, by lease expiration)
+   - Projected 5-year pro forma (stabilized cash flow, exit assumptions)
+   - Loan terms and debt schedule
+   - Equity stack and preferred return assumptions (if syndicated)
+
+4. **Market Analysis**
+   - Supply/demand dynamics in submarket
+   - Comparable properties (rentals and sales)
+   - Tenant/operator creditworthiness (if lease-focused)
+   - Macroeconomic / sector tailwinds / headwinds
+
+5. **Risk Disclosure**
+   - 10–20+ specific risks by category (market, property, operational, financial, legal)
+   - Each risk described in 1–2 paragraphs with mitigation strategy
+
+6. **Ancillary Materials**
+   - Photos, floorplans, site diagrams
+   - Tenant list / lease abstracts
+   - Appraisal summary or valuation support
+   - Environmental/Phase I findings (if relevant)
+
+**Asset class variations:**
+- **Multifamily:** Emphasis on unit mix, lease expiration schedule, rent growth potential, occupancy trends
+- **Industrial:** Tenant credit analysis, lease terms (NNN vs. gross), tenant revenue concentration, logistics location value
+- **Office:** Tenant creditworthiness, lease term length, TI costs, space efficiency metrics
+- **Retail:** Tenant sales performance, co-tenancy quality, anchor tenant strength, foot traffic
+- **Hospitality:** RevPAR benchmarks, management contract terms, brand affiliation value, seasonality
+
+**Implication for Hermes:** OM standardization validates the broker workflow entry point. When a
+broker forwards an OM email to a Hermes link, the platform should be capable of parsing and
+extracting the core sections (rent roll, T12 financials, assumptions, risks, tenant list) without
+broker intervention. The standardization also suggests that initial scope should focus on
+extraction from these predictable sections, with flexibility to handle asset-class-specific
+variations (e.g., RevPAR modeling for hotels, tenant concentration metrics for industrial).
 
 ---
 
@@ -393,20 +537,20 @@ Priority questions for ongoing research:
 
 **Competitive:**
 - [x] What is ARGUS Enterprise's current pricing (per seat, per year)? This anchors our pricing ceiling.
-- [ ] What is Cactus's pricing model and tier structure?
-- [ ] What is Primer's pricing model?
+- [x] What is Cactus's pricing model and tier structure?
+- [x] What is Primer's pricing model?
 - [ ] Has any competitor built a broker-specific distribution feature? How are they approaching it?
 - [ ] What did the Altus Group strategic review reveal about ARGUS's revenue/growth trends?
 
 **Market:**
 - [ ] What is the total addressable market for CRE underwriting software? (# of firms, # of analysts)
-- [ ] What percentage of CRE deals are multifamily vs. office/retail/industrial/mixed-use/development?
+- [x] What percentage of CRE deals are multifamily vs. office/retail/industrial/mixed-use/development?
   This determines how much our non-multifamily coverage matters for TAM.
 - [x] What is the typical broker tech stack today? What tools do IS brokers use for deal packaging?
 - [ ] What does a typical small/mid-sized investment shop's current software spend look like?
 
 **Technical:**
-- [ ] Google Document AI: any documented limitations for CRE-specific documents (appraisals, rent rolls)?
+- [x] Google Document AI: any documented limitations for CRE-specific documents (appraisals, rent rolls)?
 - [x] Trigger.dev v3 pricing at scale — what does it cost at, say, 1,000 document ingestions/month?
 - [ ] What are the standard Supabase RLS patterns for multi-tenant SaaS with anonymous shared links?
 - [x] Are there any open-source financial calculation libraries (JS/TS) worth evaluating for the
@@ -425,17 +569,34 @@ Priority questions for ongoing research:
 - [ ] How does ground lease modeling work in practice? (Ground rent escalations, leasehold financing)
 - [x] What are the most common waterfall structures in CRE JVs? (Preferred return thresholds,
   promote tiers, catch-up mechanics)
-- [ ] How do hotel/hospitality deals get underwritten differently from other asset classes?
+- [x] How do hotel/hospitality deals get underwritten differently from other asset classes?
   (RevPAR, ADR, occupancy, management contract structure)
-- [ ] What does a broker's typical OM package look like for different asset classes? What's
+- [x] What does a broker's typical OM package look like for different asset classes? What's
   always included vs. sometimes included vs. rarely included?
 
 ---
 
-## 6. Research Log
+---
+
+## 6. Recent Alerts
+
+**Industrial is now the dominant CRE sector by Q4 2025 transaction volume ($44.9B, +54.4% QoQ).**
+This marks a shift from the historical multifamily-first market. E-commerce logistics and last-mile
+delivery are driving demand. For Hermes, this suggests:
+1. Industrial-focused underwriting should be a co-equal priority with multifamily, not secondary
+2. Industrial deal mechanics (NNN leases, tenant credit analysis, escalation structures, CAM recovery)
+should be first-class engine features, not add-ons
+3. The market is increasingly bifurcated: industrial/multifamily dominating; office/retail/hospitality
+as secondary but specialized niches
+
+---
+
+## 8. Research Log
 
 | Date | Topics Covered | Key Findings |
 |---|---|---|
 | 2026-04-10 | Competitive landscape, ARGUS pain points, market dynamics, user pain points | See sections 1–3 above. Cactus and Primer are the closest direct competitors; neither has the broker distribution mechanic or replaces Excel entirely. ARGUS corporate instability is an opportunity. Market is growing fast with strong tailwinds. |
 | 2026-04-11 | T12 taxonomy, ARGUS pricing, JS/TS financial libraries | T12 structure documented with CREFC as canonical industry taxonomy — evaluate for Hermes expense schema. ARGUS pricing is opaque/quote-only; ~$1,500/seat/year is the best available estimate and anchors our pricing strategy. `@lmammino/financial` (TypeScript, zero-dep, browser-compatible) is the recommended library for the client-side calc engine. |
 | 2026-04-12 | JV waterfall mechanics, IS broker tech stack, Trigger.dev v3 pricing | Waterfall structures documented (return of capital → pref 7–8% → optional catch-up → tiered promote by IRR hurdle); ARGUS's primitive waterfall handling is a confirmed differentiator gap. Brokers use Buildout for OM creation with no buyer-facing model layer — confirms email-inbound workflow targets the right gap without disrupting broker habits. Trigger.dev v3 is consumption-based; empirical cost test needed before architecture is finalized. |
+| 2026-04-13 | CRE market mix by asset class, Cactus pricing model, hotel underwriting | Q4 2025 saw $560.2B CRE volume (+14.4% YoY): industrial $44.9B (+54.4% QoQ, now largest sector), multifamily +19.9%, office in secular decline but high-quality assets still trade. Cactus uses flat-rate subscription (not per-seat); pricing not public. Hotel underwriting is operationally driven (RevPAR, ADR, 55–75% OpEx, 100–300 bps higher cap rates); requires distinct scenario analysis; identified as critical niche within universal coverage. |
+| 2026-04-13 | Primer pricing, Google Document AI limitations, OM structure | Primer uses flat monthly team fee (no public pricing; 10+ deals/month minimum). Google Document AI has accuracy variance on complex CRE docs (mixed legal/financial text, dense tables, multi-page layouts); human review layer mandatory in Analyst Studio. OM structure is standardized (exec summary → property → financials → market → risk disclosure) with asset-class-specific variations; validates email workflow entry point and extraction priorities. |
