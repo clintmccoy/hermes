@@ -238,7 +238,7 @@ CREATE POLICY "Org members can access deal compositions"
   USING (
     deal_id IN (
       SELECT id FROM public.deals
-      WHERE org_id = ANY(auth.user_org_ids())
+      WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -305,7 +305,7 @@ CREATE POLICY "Org members can access model results"
   ON public.model_results
   FOR ALL
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE INDEX idx_model_results_deal_id
   ON public.model_results (deal_id);
@@ -350,7 +350,7 @@ CREATE POLICY "Org members can access scenario sets"
   USING (
     deal_id IN (
       SELECT id FROM public.deals
-      WHERE org_id = ANY(auth.user_org_ids())
+      WHERE org_id = ANY(public.user_org_ids())
     )
   );
 

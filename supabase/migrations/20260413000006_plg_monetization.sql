@@ -67,7 +67,7 @@ CREATE POLICY "Org members can manage their share links"
   ON public.share_links
   FOR ALL
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE INDEX idx_share_links_deal_id
   ON public.share_links (deal_id);
@@ -119,7 +119,7 @@ CREATE POLICY "Org members can read views for their share links"
   USING (
     share_link_id IN (
       SELECT id FROM public.share_links
-      WHERE org_id = ANY(auth.user_org_ids())
+      WHERE org_id = ANY(public.user_org_ids())
     )
   );
 
@@ -193,7 +193,7 @@ CREATE POLICY "Org members can read their credit ledger"
   ON public.credit_ledger
   FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE INDEX idx_credit_ledger_org_id
   ON public.credit_ledger (org_id, created_at DESC);
@@ -266,7 +266,7 @@ CREATE POLICY "Org members can read their subscription"
   ON public.org_subscriptions
   FOR SELECT
   TO authenticated
-  USING (org_id = ANY(auth.user_org_ids()));
+  USING (org_id = ANY(public.user_org_ids()));
 
 CREATE INDEX idx_org_subscriptions_org_id
   ON public.org_subscriptions (org_id);
