@@ -39,6 +39,13 @@ pinning, the analyst has no way to know whether their model changed because
 the document changed or because the AI "thinks differently now." Pinning
 makes the provenance record trustworthy across time.
 
+## Model Selection and Advisor Strategy
+
+Model selection for v0 — which Claude model serves as executor, and how the
+Opus advisor is invoked — is covered in ADR 010 (v0 Agentic Architecture).
+This ADR covers the provider choice and version pinning principle; ADR 010
+covers how those models are deployed in practice.
+
 ## Future Direction
 
 - Different specialist agents may use different providers (e.g., Google

@@ -16,7 +16,7 @@ and technical context. This file is the memory that persists across sessions.
 **Primary domain expert:** Clinton McCoy — investment analyst with ~10 years across
 brokerage, private equity, and third-party consulting. Ground-up development is a primary
 use case. Power user and first test customer.
-**Last updated:** 2026-04-11
+**Last updated:** 2026-04-12
 
 ---
 
@@ -282,6 +282,111 @@ the same library for consistency, avoiding any client/server calc divergence ris
 
 ---
 
+### JV Waterfall Structures — Common Mechanics in CRE
+
+The equity waterfall is the distribution framework used in CRE joint ventures to determine
+how cash flow and profit are allocated between the LP (limited partner / passive investor)
+and the GP (general partner / sponsor).
+
+**Standard tier sequence:**
+
+**Tier 1 — Return of Capital**
+All distributions flow to the LP until 100% of invested capital is returned. Non-negotiable
+in virtually all structures.
+
+**Tier 2 — Preferred Return ("Pref")**
+After capital return, LP receives a cumulative preferred return on contributed capital.
+Typical range: 6–10% annually; 7–8% is most common in institutional deals. The pref is
+a priority claim on returns, not a guaranteed payment. Accrues if not paid currently.
+
+**Tier 3 — GP Catch-Up (optional, negotiated)**
+Once the LP hits their pref, the GP may receive 100% of subsequent distributions until
+the GP has "caught up" to the agreed split. Example: if the final split is 80/20, the
+catch-up runs until the GP has received 20% of all cumulative distributions. Not all
+deals include a catch-up; its inclusion depends on sponsor leverage and deal quality.
+
+**Tier 4+ — Tiered Promote (Carried Interest)**
+After catch-up, distributions split in tiers tied to IRR hurdles. Common example:
+- Below 12% IRR: 80/20 (LP/GP)
+- 12–18% IRR: 70/30 (LP/GP)
+- Above 18% IRR: 60/40 or 50/50 (LP/GP)
+
+The GP's disproportionate share above pref thresholds is the "promote" — analogous to
+carried interest in PE funds. Higher-quality sponsors command steeper promotes.
+
+**Clawback provision:** If mid-deal distributions over-pay the GP relative to final
+performance, the LP can reclaim the excess at exit. Standard in institutional structures;
+less common in smaller or syndicated deals.
+
+**Implications for Hermes:** Waterfall modeling is a mandatory underwriting engine component.
+A deal-level waterfall module needs: configurable pref rates, optional catch-up mechanics,
+2–4 promote tiers with custom IRR hurdles, and clawback tracking. ARGUS waterfall modeling
+is primitive and widely considered one of its weakest areas — analysts routinely rebuild
+waterfalls in Excel outside ARGUS. A strong, intuitive Hermes waterfall UI is a genuine
+differentiator. This should be a first-class module, not an afterthought.
+
+---
+
+### IS Broker Tech Stack — Tools in Use Today
+
+Investment sales and capital markets brokers in 2025–2026 operate across several distinct
+tool categories. Key findings from industry research:
+
+**OM creation and deal packaging:**
+- **Buildout** is the dominant platform for IS brokerage OM production — industry standard
+  for creating and distributing deal packages to buyers. Deeply embedded in brokerage
+  operations; has CRM functionality built in.
+- **DealGround** (AI-native, notable 2025/2026 entrant) — AI-driven OM extraction,
+  automatic lease data updates, ownership discovery tools. Targeting the broker side
+  of the market with intelligence on top of documents they already create.
+- High-end boutique brokers still use InDesign/Adobe toolchain for polished OMs; most
+  mid-market shops have standardized on Buildout.
+
+**Listing and deal exposure:**
+- CoStar / LoopNet (dominant, near-universal for exposure)
+- Crexi (challenger, gaining share in smaller/mid-market deals; faster, cheaper than CoStar)
+- Brevitas (integrated CRM + listing + data room; appealing to independent brokers)
+
+**CRM:** Salesforce (large shops), HubSpot (mid-market), RealNex (CRE-specific), Buildout
+
+**Data and comps:** CoStar (dominant), MSCI/RCA (institutional), DealGround (AI ownership intel)
+
+**Deal data rooms:** Box, Dropbox, Google Drive (generic); Dealpath for institutional buyers
+
+**Critical gap for Hermes:** No broker tool today includes a buyer-facing underwriting or
+model-sharing layer. The standard broker workflow is: create OM in Buildout → upload to
+CoStar/Crexi → send a PDF link to buyers. The buyer's analyst then manually re-keys data
+into Excel from scratch. Hermes's email-inbound flow (forward a broker email → instant
+deal screen) plugs directly into this gap without asking brokers to change their existing
+workflow at all. This confirms that Hermes's broker distribution mechanic works *with*
+existing broker tools rather than competing with them. Brokers become passive distribution
+channels — they don't need to adopt anything.
+
+---
+
+### Trigger.dev v3 — Pricing Model
+
+Trigger.dev v3 uses consumption-based pricing (compute time + run invocations):
+
+- **Free:** $5/month usage credit, 10 concurrent runs, 1-day log retention
+- **Hobby:** $10/month, includes $10 usage credit, 25 concurrent runs, 7-day log retention
+- **Higher tiers:** Exist but specific per-second compute rates and pricing for Pro/Scale
+  tiers were not accessible from public documentation during this research run.
+
+**Estimate for Hermes at 1,000 document ingestions/month:**
+Without per-second compute rates, a precise estimate is not possible. The free tier's
+$5 credit is clearly insufficient at 1,000 runs/month. Assuming 10–30 seconds of compute
+per document on a small machine, monthly usage likely falls in the $50–$250 range depending
+on machine size and run duration. This needs empirical validation before architecture is
+finalized.
+
+**Action item:** Run a test ingestion workflow on Trigger.dev v3, record actual compute
+seconds per document, and extrapolate to the 1,000/month scenario. This should happen early
+in infrastructure buildout — it affects whether Trigger.dev is cost-viable vs. alternatives
+like Inngest, Railway workers, or a Supabase Edge Function + queue approach.
+
+---
+
 ## 5. Open Research Questions
 
 Priority questions for ongoing research:
@@ -297,12 +402,12 @@ Priority questions for ongoing research:
 - [ ] What is the total addressable market for CRE underwriting software? (# of firms, # of analysts)
 - [ ] What percentage of CRE deals are multifamily vs. office/retail/industrial/mixed-use/development?
   This determines how much our non-multifamily coverage matters for TAM.
-- [ ] What is the typical broker tech stack today? What tools do IS brokers use for deal packaging?
+- [x] What is the typical broker tech stack today? What tools do IS brokers use for deal packaging?
 - [ ] What does a typical small/mid-sized investment shop's current software spend look like?
 
 **Technical:**
 - [ ] Google Document AI: any documented limitations for CRE-specific documents (appraisals, rent rolls)?
-- [ ] Trigger.dev v3 pricing at scale — what does it cost at, say, 1,000 document ingestions/month?
+- [x] Trigger.dev v3 pricing at scale — what does it cost at, say, 1,000 document ingestions/month?
 - [ ] What are the standard Supabase RLS patterns for multi-tenant SaaS with anonymous shared links?
 - [x] Are there any open-source financial calculation libraries (JS/TS) worth evaluating for the
   client-side calculation engine?
@@ -318,7 +423,7 @@ Priority questions for ongoing research:
 **CRE domain:**
 - [x] Standard T12 line item taxonomy — what are the universal expense categories across asset classes?
 - [ ] How does ground lease modeling work in practice? (Ground rent escalations, leasehold financing)
-- [ ] What are the most common waterfall structures in CRE JVs? (Preferred return thresholds,
+- [x] What are the most common waterfall structures in CRE JVs? (Preferred return thresholds,
   promote tiers, catch-up mechanics)
 - [ ] How do hotel/hospitality deals get underwritten differently from other asset classes?
   (RevPAR, ADR, occupancy, management contract structure)
@@ -333,3 +438,4 @@ Priority questions for ongoing research:
 |---|---|---|
 | 2026-04-10 | Competitive landscape, ARGUS pain points, market dynamics, user pain points | See sections 1–3 above. Cactus and Primer are the closest direct competitors; neither has the broker distribution mechanic or replaces Excel entirely. ARGUS corporate instability is an opportunity. Market is growing fast with strong tailwinds. |
 | 2026-04-11 | T12 taxonomy, ARGUS pricing, JS/TS financial libraries | T12 structure documented with CREFC as canonical industry taxonomy — evaluate for Hermes expense schema. ARGUS pricing is opaque/quote-only; ~$1,500/seat/year is the best available estimate and anchors our pricing strategy. `@lmammino/financial` (TypeScript, zero-dep, browser-compatible) is the recommended library for the client-side calc engine. |
+| 2026-04-12 | JV waterfall mechanics, IS broker tech stack, Trigger.dev v3 pricing | Waterfall structures documented (return of capital → pref 7–8% → optional catch-up → tiered promote by IRR hurdle); ARGUS's primitive waterfall handling is a confirmed differentiator gap. Brokers use Buildout for OM creation with no buyer-facing model layer — confirms email-inbound workflow targets the right gap without disrupting broker habits. Trigger.dev v3 is consumption-based; empirical cost test needed before architecture is finalized. |
