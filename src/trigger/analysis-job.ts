@@ -162,17 +162,19 @@ export const analysisJobTask = task({
           return;
         }
 
-        // Read any user overrides written to extracted_inputs before gate confirm
-        const gate1Overrides = await readPendingOverrides(db, jobId);
-        if (gate1Overrides.length > 0) {
-          await applyUserOverrides(db, jobId, userId, gate1Overrides);
+        // Apply any user overrides written to extracted_inputs during this gate
+        // review. Overrides must be applied before model construction consumes
+        // extracted_inputs — this checkpoint is the only one that precedes it.
+        const pendingOverrides = await readPendingOverrides(db, jobId);
+        if (pendingOverrides.length > 0) {
+          await applyUserOverrides(db, jobId, userId, pendingOverrides);
         }
 
         await emitEvent(jobId, sequencer, "gate.confirmed", {
           gateName: postExtractionGate.gate_name,
           gateSequence: postExtractionGate.gate_sequence,
           userId,
-          overridesApplied: gate1Overrides.length,
+          overridesApplied: pendingOverrides.length,
         });
 
         await db.from("analysis_jobs").update({ status: "running" }).eq("id", jobId);

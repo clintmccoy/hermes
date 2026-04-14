@@ -3,7 +3,7 @@
  *
  * Responsibilities:
  * 1. Load the confirmed deal_model_compositions row
- * 2. Load all confirmed extracted_inputs (including user overrides from Gate 1)
+ * 2. Load all confirmed extracted_inputs (including user overrides from the post-extraction gate)
  * 3. Run the hybrid calculation engine (server-side authoritative path)
  * 4. Write model_results, model_run_kpis, and model_run_monthly_cashflows
  *
@@ -116,7 +116,7 @@ export const modelConstructionTask = task({
       throw new Error(`Composition not found: ${compError?.message}`);
     }
 
-    // Load extracted inputs — prefer user overrides from Gate 1
+    // Load extracted inputs — prefer user overrides applied at the post-extraction gate
     const { data: inputs, error: inputsError } = await db
       .from("extracted_inputs")
       .select("field_name, extracted_value, user_override_value, confidence_score, advisor_invoked")
@@ -182,7 +182,7 @@ export const modelConstructionTask = task({
     // The calc engine is server-side and deterministic. It takes the structured
     // input map + assumptions and produces KPIs and monthly cashflows.
     // ADR 004 / ADR 013: this is the "authoritative path" — client-side preview
-    // was shown during Gate 2 display; this result is what gets stored.
+    // was shown during the post-construction gate review; this result is what gets stored.
     const calcResult = await runCalculationEngine(inputMap, assumptions, composition);
 
     // ── 5. Write model_results ────────────────────────────────────────────────

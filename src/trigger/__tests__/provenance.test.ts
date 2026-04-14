@@ -19,8 +19,7 @@ interface AnalysisJobProvenanceFields {
   advisor_tokens_used: number | null;
   executor_tokens_used: number | null;
   // Gate confirmation events (written as agent_events, not direct columns)
-  // Gate 1: event_type = 'gate1.confirmed', payload includes userId + timestamp
-  // Gate 2: event_type = 'gate2.confirmed', payload includes userId + timestamp
+  // event_type = 'gate.confirmed'; gate identity in payload (gateName, gateSequence)
 }
 
 function buildInitialJobProvenance(_analysisDepth: AnalysisDepth): AnalysisJobProvenanceFields {
@@ -165,12 +164,18 @@ describe("extracted_inputs provenance fields", () => {
 });
 
 // ── Gate event provenance ────────────────────────────────────────────────────
+//
+// Gate events use the normalized event type "gate.confirmed" — gate identity
+// is carried in the payload (gateName + gateSequence), not in the event type
+// string. This keeps the event schema stable as gate configs change per org.
 
 interface GateConfirmationEvent {
   job_id: string;
-  event_type: "gate1.confirmed" | "gate2.confirmed";
+  event_type: "gate.confirmed" | "gate.skipped";
   sequence_number: number;
   payload: {
+    gateName: string;
+    gateSequence: number;
     userId: string;
     overridesApplied?: number;
   };
@@ -178,38 +183,54 @@ interface GateConfirmationEvent {
 }
 
 describe("Gate confirmation event provenance", () => {
-  it("gate1.confirmed event has required fields", () => {
+  it("gate.confirmed event has all required provenance fields", () => {
     const event: GateConfirmationEvent = {
       job_id: "job-abc",
-      event_type: "gate1.confirmed",
+      event_type: "gate.confirmed",
       sequence_number: 8,
-      payload: { userId: "user-xyz", overridesApplied: 2 },
+      payload: {
+        gateName: "post_extraction",
+        gateSequence: 1,
+        userId: "user-xyz",
+        overridesApplied: 2,
+      },
       emitted_at: new Date().toISOString(),
     };
 
     expect(event.job_id).toBeTruthy();
-    expect(event.event_type).toBe("gate1.confirmed");
+    expect(event.event_type).toBe("gate.confirmed");
+    expect(event.payload.gateName).toBeTruthy();
+    expect(event.payload.gateSequence).toBeGreaterThan(0);
     expect(event.payload.userId).toBeTruthy();
     expect(event.sequence_number).toBeGreaterThan(0);
     expect(Date.parse(event.emitted_at)).not.toBeNaN();
   });
 
-  it("gate2.confirmed event has required fields", () => {
+  it("later gates always have a higher sequence_number than earlier gates", () => {
+    // sequence_number is globally monotonic within a job — a gate confirmed
+    // later in the pipeline always has a higher sequence_number than one
+    // confirmed earlier, regardless of gate_sequence value.
+    const earlierGateEventSeq = 8;
+    const laterGateEventSeq = 18;
+    expect(laterGateEventSeq).toBeGreaterThan(earlierGateEventSeq);
+  });
+
+  it("gate.confirmed payload gateName matches the job_gates gate_name", () => {
+    // The pipeline emits gateName from the gate_config_entries row —
+    // the UI can use this to look up the job_gates row for the confirmation.
     const event: GateConfirmationEvent = {
       job_id: "job-abc",
-      event_type: "gate2.confirmed",
+      event_type: "gate.confirmed",
       sequence_number: 18,
-      payload: { userId: "user-xyz" },
+      payload: {
+        gateName: "post_construction",
+        gateSequence: 2,
+        userId: "user-xyz",
+      },
       emitted_at: new Date().toISOString(),
     };
 
-    expect(event.event_type).toBe("gate2.confirmed");
-    expect(event.sequence_number).toBeGreaterThan(0);
-  });
-
-  it("gate2 sequence_number is always greater than gate1", () => {
-    const gate1Seq = 8;
-    const gate2Seq = 18;
-    expect(gate2Seq).toBeGreaterThan(gate1Seq);
+    expect(event.payload.gateName).toBe("post_construction");
+    expect(event.payload.gateSequence).toBe(2);
   });
 });
