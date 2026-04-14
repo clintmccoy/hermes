@@ -1,0 +1,177 @@
+/**
+ * Shared types for the Hermes agentic pipeline.
+ *
+ * These types are used across the main analysis-job orchestrator
+ * and all subtasks. Keep this file lean — domain types belong in
+ * the database.types.ts generated file.
+ */
+
+// ── Analysis depth ─────────────────────────────────────────────────────────
+
+/**
+ * Analysis depth controls advisor max_uses caps and credit cost.
+ * Maps directly to the analysis_depth column on analysis_jobs.
+ */
+export type AnalysisDepth =
+  | "boe" // Back-of-Envelope Screen
+  | "first_run" // First-Run Analysis
+  | "ic_grade" // IC-Grade Scenario Analysis
+  | "strategic_mix"; // Strategic Mix Optimization
+
+/** Advisor max_uses caps by analysis depth (ADR 010, Decision 2). */
+export const ADVISOR_MAX_USES: Record<AnalysisDepth, number> = {
+  boe: 2,
+  first_run: 5,
+  ic_grade: 10,
+  strategic_mix: 20,
+};
+
+// ── Model version strings ───────────────────────────────────────────────────
+
+/** Version-pinned model strings (ADR 007 — never use *-latest aliases). */
+export const EXECUTOR_MODEL = "claude-sonnet-4-6" as const;
+export const ADVISOR_MODEL = "claude-opus-4-6" as const;
+
+// ── Pipeline payload types ──────────────────────────────────────────────────
+
+/** Payload passed to the top-level analysis-job task on trigger. */
+export interface AnalysisJobPayload {
+  /** The analysis_jobs.id created by the API before triggering this job. */
+  jobId: string;
+  /** Supabase uploaded_files.id of the document to process. */
+  uploadedFileId: string;
+  /** The deal this analysis belongs to. */
+  dealId: string;
+  /** The org this analysis belongs to. */
+  orgId: string;
+  /** The user who initiated the job (for Gate confirmation events). */
+  userId: string;
+  /** Controls advisor caps and credit cost. */
+  analysisDepth: AnalysisDepth;
+}
+
+/** Structured output from the document-ingestion subtask. */
+export interface IngestionResult {
+  /** document_refs.id created or resolved during ingestion. */
+  documentRefId: string;
+  /** Storage path of the raw Document AI output (JSON) in Supabase Storage. */
+  rawExtractionStoragePath: string;
+  /** Number of pages successfully extracted. */
+  pagesExtracted: number;
+  /** True if any pages failed extraction (graceful degradation). */
+  hasPartialExtraction: boolean;
+  /** Pages that could not be extracted, if any. */
+  failedPages: number[];
+}
+
+/** Structured output from the extraction subtask. */
+export interface ExtractionResult {
+  /** Number of extracted_inputs rows written. */
+  inputsExtracted: number;
+  /** Whether the advisor was invoked during extraction. */
+  advisorInvoked: boolean;
+  /** Total advisor invocations used so far in this job. */
+  advisorInvocationCount: number;
+  /** Running token totals (updated after each subtask). */
+  executorTokensUsed: number;
+  advisorTokensUsed: number;
+}
+
+/** Structured output from the module-selection subtask. */
+export interface ModuleSelectionResult {
+  /** deal_model_compositions.id written. */
+  compositionId: string;
+  /** Modules selected for this deal. */
+  modulesSelected: string[];
+  /** Whether the advisor was consulted for composition. */
+  advisorInvoked: boolean;
+  advisorInvocationCount: number;
+  executorTokensUsed: number;
+  advisorTokensUsed: number;
+}
+
+/** Structured output from the model-construction subtask. */
+export interface ModelConstructionResult {
+  /** model_results.id written. */
+  modelResultId: string;
+  executorTokensUsed: number;
+  advisorTokensUsed: number;
+  advisorInvocationCount: number;
+}
+
+/** Accumulator for provenance counters across the full pipeline. */
+export interface ProvenanceTotals {
+  executorTokensUsed: number;
+  advisorTokensUsed: number;
+  advisorInvocationCount: number;
+}
+
+// ── Gate checkpoint types ───────────────────────────────────────────────────
+
+/** Data surfaced to the UI at Gate 1 (post-extraction review). */
+export interface Gate1Payload {
+  jobId: string;
+  dealId: string;
+  /** resumption token — UI POSTs this back to confirm */
+  resumeToken: string;
+  /** Public access token for the Trigger.dev Realtime stream. */
+  publicAccessToken: string;
+  /** Summary of extracted inputs for user review. */
+  extractionSummary: ExtractionSummaryItem[];
+}
+
+export interface ExtractionSummaryItem {
+  fieldName: string;
+  extractedValue: unknown;
+  confidence: number | null;
+  sourcePageNumber: number | null;
+  sourceTextExcerpt: string | null;
+  /** True if the advisor was consulted on this field. */
+  advisorInvoked: boolean;
+}
+
+/** Data surfaced to the UI at Gate 2 (post-construction review). */
+export interface Gate2Payload {
+  jobId: string;
+  dealId: string;
+  compositionId: string;
+  resumeToken: string;
+  publicAccessToken: string;
+  /** Modules selected and why. */
+  modulesSelected: string[];
+  /** Key KPIs for user review before finalising. */
+  modelSummary: ModelSummaryItem[];
+}
+
+export interface ModelSummaryItem {
+  label: string;
+  value: number | string | null;
+  unit: string | null;
+}
+
+// ── Agent event types ───────────────────────────────────────────────────────
+
+/** All event_type values written to the agent_events table. */
+export type AgentEventType =
+  | "job.started"
+  | "ingestion.started"
+  | "ingestion.completed"
+  | "ingestion.partial_failure"
+  | "extraction.started"
+  | "extraction.advisor_invoked"
+  | "extraction.completed"
+  | "gate1.presented"
+  | "gate1.confirmed"
+  | "gate1.timeout"
+  | "module_selection.started"
+  | "module_selection.advisor_invoked"
+  | "module_selection.completed"
+  | "model_construction.started"
+  | "model_construction.completed"
+  | "gate2.presented"
+  | "gate2.confirmed"
+  | "gate2.timeout"
+  | "credit_deduction.completed"
+  | "job.completed"
+  | "job.failed"
+  | "job.cancelled";
