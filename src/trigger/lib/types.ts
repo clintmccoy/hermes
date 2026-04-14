@@ -108,18 +108,11 @@ export interface ProvenanceTotals {
 
 // ── Gate checkpoint types ───────────────────────────────────────────────────
 
-/** Data surfaced to the UI at Gate 1 (post-extraction review). */
-export interface Gate1Payload {
-  jobId: string;
-  dealId: string;
-  /** resumption token — UI POSTs this back to confirm */
-  resumeToken: string;
-  /** Public access token for the Trigger.dev Realtime stream. */
-  publicAccessToken: string;
-  /** Summary of extracted inputs for user review. */
-  extractionSummary: ExtractionSummaryItem[];
-}
-
+/**
+ * Summary of a single extracted input surfaced at the post-extraction gate.
+ * Displayed in the UI so the analyst can review and optionally override values
+ * before the model is constructed.
+ */
 export interface ExtractionSummaryItem {
   fieldName: string;
   extractedValue: unknown;
@@ -130,19 +123,6 @@ export interface ExtractionSummaryItem {
   advisorInvoked: boolean;
 }
 
-/** Data surfaced to the UI at Gate 2 (post-construction review). */
-export interface Gate2Payload {
-  jobId: string;
-  dealId: string;
-  compositionId: string;
-  resumeToken: string;
-  publicAccessToken: string;
-  /** Modules selected and why. */
-  modulesSelected: string[];
-  /** Key KPIs for user review before finalising. */
-  modelSummary: ModelSummaryItem[];
-}
-
 export interface ModelSummaryItem {
   label: string;
   value: number | string | null;
@@ -151,7 +131,14 @@ export interface ModelSummaryItem {
 
 // ── Agent event types ───────────────────────────────────────────────────────
 
-/** All event_type values written to the agent_events table. */
+/**
+ * All event_type values written to the agent_events table.
+ *
+ * Gate events use gate.presented / gate.confirmed / gate.timeout rather than
+ * gate1.* / gate2.* — the gate identity is carried in the event payload
+ * (gateName + gateSequence) so the event schema stays stable as gate configs
+ * change per org or analysis depth.
+ */
 export type AgentEventType =
   | "job.started"
   | "ingestion.started"
@@ -160,17 +147,15 @@ export type AgentEventType =
   | "extraction.started"
   | "extraction.advisor_invoked"
   | "extraction.completed"
-  | "gate1.presented"
-  | "gate1.confirmed"
-  | "gate1.timeout"
+  | "gate.presented"
+  | "gate.confirmed"
+  | "gate.skipped"
+  | "gate.timeout"
   | "module_selection.started"
   | "module_selection.advisor_invoked"
   | "module_selection.completed"
   | "model_construction.started"
   | "model_construction.completed"
-  | "gate2.presented"
-  | "gate2.confirmed"
-  | "gate2.timeout"
   | "credit_deduction.completed"
   | "job.completed"
   | "job.failed"

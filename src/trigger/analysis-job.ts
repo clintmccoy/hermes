@@ -2,19 +2,27 @@
  * analysis-job — the main Trigger.dev orchestrator task.
  *
  * This is the single orchestrating agent per job (ADR 010, Decision 3).
- * It wires together all six pipeline steps and enforces the two mandatory
- * human checkpoints (ADR 010, Decision 4).
+ * It wires together all six pipeline steps and enforces the human
+ * checkpoints defined by the org's gate_config_profile (ADR 010, Decision 4;
+ * ADR 011, §3).
  *
  * Pipeline:
  *   Step 1: Document ingestion (Document AI)
- *   Step 2: Extraction + advisor consultation → Gate 1 (user review)
+ *   Step 2: Extraction + advisor consultation → Gate (if configured)
  *   Step 3: Module selection
- *   Step 4: Model construction + Gate 2 (user review)
+ *   Step 4: Model construction + Gate (if configured)
  *   Step 5: Output generation + version lock
  *   Step 6: Credit deduction (ONLY on success)
  *
- * Human gates use Trigger.dev wait tokens. The job suspends while waiting
- * (consuming no compute) and resumes when the user confirms via the UI.
+ * Gate system (normalized, not hardcoded):
+ *   - Gate configuration is loaded from gate_config_profiles +
+ *     gate_config_entries at job start.
+ *   - BOE analysis_depth has no gates in the system default profile.
+ *   - Each gate creates a job_gates row and polls it for confirmation.
+ *   - The UI confirms a gate by updating job_gates.status = 'confirmed'
+ *     or 'skipped' via an authenticated API route.
+ *   - analysis_jobs.status is set to 'awaiting_gate' during any gate;
+ *     set back to 'running' once the gate passes.
  *
  * Provenance: every analysis_jobs update records exact model version strings,
  * token counts, and gate confirmation timestamps. ADR 010 non-negotiable.
@@ -32,14 +40,21 @@ import {
   ADVISOR_MODEL,
   type AnalysisJobPayload,
   type ProvenanceTotals,
-  type Gate1Payload,
-  type Gate2Payload,
   type ExtractionSummaryItem,
   type ModelSummaryItem,
 } from "./lib/types";
 
 // Gate timeout: 48 hours. After this, the job is cancelled and no credits deducted.
 const GATE_TIMEOUT_SECONDS = 48 * 60 * 60;
+
+// System default gate config profile UUID — seeded in migration
+const SYSTEM_DEFAULT_PROFILE_ID = "00000000-0000-0000-0000-000000000001";
+
+interface GateConfigEntry {
+  gate_name: string;
+  gate_sequence: number;
+  is_skippable: boolean;
+}
 
 export const analysisJobTask = task({
   id: "analysis-job",
@@ -73,6 +88,12 @@ export const analysisJobTask = task({
       executorModel: EXECUTOR_MODEL,
       advisorModel: ADVISOR_MODEL,
     });
+
+    // ── Load gate config for this org + analysis depth ────────────────────────
+    // Resolves the org's gate profile (or falls back to system default).
+    // BOE has no gate entries in the default profile — it runs uninterrupted.
+    const gateEntries = await loadGateConfig(db, orgId, analysisDepth);
+    const gateByName = new Map(gateEntries.map((e) => [e.gate_name, e]));
 
     // Provenance accumulator — updated after each subtask
     const provenance: ProvenanceTotals = {
@@ -122,57 +143,40 @@ export const analysisJobTask = task({
       // Update analysis_jobs with running provenance counts
       await updateJobProvenance(db, jobId, provenance);
 
-      // ── GATE 1: User review of extraction ──────────────────────────────────
-      // Gate implementation: set status → poll every 30s → UI confirms via API
-      // route that updates status to "gate1_confirmed". wait.createToken is not
-      // available in this SDK version; polling is the supported v0 pattern.
-      const extractionSummary = await buildExtractionSummary(db, jobId);
+      // ── POST-EXTRACTION GATE (if configured for this depth) ─────────────────
+      const postExtractionGate = gateByName.get("post_extraction");
+      if (postExtractionGate) {
+        const extractionSummary = await buildExtractionSummary(db, jobId);
 
-      const gate1Payload: Gate1Payload = {
-        jobId,
-        dealId,
-        resumeToken: "", // No token in polling model — UI keys off status column
-        publicAccessToken: "",
-        extractionSummary,
-      };
+        await emitEvent(jobId, sequencer, "gate.presented", {
+          gateName: postExtractionGate.gate_name,
+          gateSequence: postExtractionGate.gate_sequence,
+          extractionSummaryCount: extractionSummary.length,
+          expiresInSeconds: GATE_TIMEOUT_SECONDS,
+        });
 
-      await db.from("analysis_jobs").update({ status: "awaiting_gate1" }).eq("id", jobId);
+        const { passed } = await runGate(db, jobId, postExtractionGate, GATE_TIMEOUT_SECONDS);
 
-      await emitEvent(jobId, sequencer, "gate1.presented", {
-        extractionSummaryCount: extractionSummary.length,
-        expiresInSeconds: GATE_TIMEOUT_SECONDS,
-      });
+        if (!passed) {
+          await cancelJob(db, jobId, sequencer, `${postExtractionGate.gate_name}_timeout`);
+          return;
+        }
 
-      console.log(
-        "[analysis-job] Gate 1 presented. Waiting for user confirmation.",
-        JSON.stringify({ gate1Payload }),
-      );
+        // Read any user overrides written to extracted_inputs before gate confirm
+        const gate1Overrides = await readPendingOverrides(db, jobId);
+        if (gate1Overrides.length > 0) {
+          await applyUserOverrides(db, jobId, userId, gate1Overrides);
+        }
 
-      // Poll until user confirms or timeout (48h = 5760 × 30s polls)
-      const gate1Confirmed = await pollForGateConfirmation(
-        db,
-        jobId,
-        "gate1_confirmed",
-        GATE_TIMEOUT_SECONDS,
-      );
+        await emitEvent(jobId, sequencer, "gate.confirmed", {
+          gateName: postExtractionGate.gate_name,
+          gateSequence: postExtractionGate.gate_sequence,
+          userId,
+          overridesApplied: gate1Overrides.length,
+        });
 
-      if (!gate1Confirmed) {
-        await cancelJob(db, jobId, sequencer, "gate1_timeout");
-        return;
+        await db.from("analysis_jobs").update({ status: "running" }).eq("id", jobId);
       }
-
-      // Read any user overrides stored by the UI before it set gate1_confirmed
-      const gate1Overrides = await readPendingOverrides(db, jobId);
-      if (gate1Overrides.length > 0) {
-        await applyUserOverrides(db, jobId, userId, gate1Overrides);
-      }
-
-      await emitEvent(jobId, sequencer, "gate1.confirmed", {
-        userId,
-        overridesApplied: gate1Overrides.length,
-      });
-
-      await db.from("analysis_jobs").update({ status: "running" }).eq("id", jobId);
 
       // ── STEP 3: Module selection ────────────────────────────────────────────
       const moduleResult = await moduleSelectionTask.triggerAndWait({
@@ -215,46 +219,34 @@ export const analysisJobTask = task({
       advanceSequencer(sequencer, 3);
       await updateJobProvenance(db, jobId, provenance);
 
-      // ── GATE 2: User review of model construction ───────────────────────────
-      const modelSummary = await buildModelSummary(db, constructionResult.output.modelResultId);
+      // ── POST-CONSTRUCTION GATE (if configured for this depth) ───────────────
+      const postConstructionGate = gateByName.get("post_construction");
+      if (postConstructionGate) {
+        const modelSummary = await buildModelSummary(db, constructionResult.output.modelResultId);
 
-      const gate2Payload: Gate2Payload = {
-        jobId,
-        dealId,
-        compositionId: moduleResult.output.compositionId,
-        resumeToken: "",
-        publicAccessToken: "",
-        modulesSelected: moduleResult.output.modulesSelected,
-        modelSummary,
-      };
+        await emitEvent(jobId, sequencer, "gate.presented", {
+          gateName: postConstructionGate.gate_name,
+          gateSequence: postConstructionGate.gate_sequence,
+          modelSummaryItems: modelSummary.length,
+          modulesSelected: moduleResult.output.modulesSelected,
+          expiresInSeconds: GATE_TIMEOUT_SECONDS,
+        });
 
-      await db.from("analysis_jobs").update({ status: "awaiting_gate2" }).eq("id", jobId);
+        const { passed } = await runGate(db, jobId, postConstructionGate, GATE_TIMEOUT_SECONDS);
 
-      await emitEvent(jobId, sequencer, "gate2.presented", {
-        modelSummaryItems: modelSummary.length,
-        expiresInSeconds: GATE_TIMEOUT_SECONDS,
-      });
+        if (!passed) {
+          await cancelJob(db, jobId, sequencer, `${postConstructionGate.gate_name}_timeout`);
+          return;
+        }
 
-      console.log(
-        "[analysis-job] Gate 2 presented. Waiting for user confirmation.",
-        JSON.stringify({ gate2Payload }),
-      );
+        await emitEvent(jobId, sequencer, "gate.confirmed", {
+          gateName: postConstructionGate.gate_name,
+          gateSequence: postConstructionGate.gate_sequence,
+          userId,
+        });
 
-      const gate2Confirmed = await pollForGateConfirmation(
-        db,
-        jobId,
-        "gate2_confirmed",
-        GATE_TIMEOUT_SECONDS,
-      );
-
-      if (!gate2Confirmed) {
-        await cancelJob(db, jobId, sequencer, "gate2_timeout");
-        return;
+        await db.from("analysis_jobs").update({ status: "running" }).eq("id", jobId);
       }
-
-      await emitEvent(jobId, sequencer, "gate2.confirmed", { userId });
-
-      await db.from("analysis_jobs").update({ status: "running" }).eq("id", jobId);
 
       // ── STEP 5: Output generation ───────────────────────────────────────────
       // Version-lock the model result
@@ -283,7 +275,7 @@ export const analysisJobTask = task({
       await db
         .from("analysis_jobs")
         .update({
-          status: "completed",
+          status: "complete",
           completed_at: new Date().toISOString(),
           advisor_invocation_count: provenance.advisorInvocationCount,
           advisor_tokens_used: provenance.advisorTokensUsed,
@@ -330,6 +322,120 @@ export const analysisJobTask = task({
     }
   },
 });
+
+// ── Gate system ──────────────────────────────────────────────────────────────
+
+/**
+ * Load gate config entries for this org + analysis depth.
+ *
+ * Precedence: org-specific profile → system default profile.
+ * Entries are filtered to those whose analysis_depths array includes
+ * the current depth. BOE is excluded from the v0 default config.
+ */
+async function loadGateConfig(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  orgId: string,
+  analysisDepth: string,
+): Promise<GateConfigEntry[]> {
+  // Prefer org-specific profile; fall back to system default
+  const { data: orgProfile } = await db
+    .from("gate_config_profiles")
+    .select("id")
+    .eq("org_id", orgId)
+    .eq("is_default", true)
+    .maybeSingle();
+
+  const profileId = orgProfile?.id ?? SYSTEM_DEFAULT_PROFILE_ID;
+
+  const { data: entries } = await db
+    .from("gate_config_entries")
+    .select("gate_name, gate_sequence, is_skippable, analysis_depths")
+    .eq("profile_id", profileId)
+    .order("gate_sequence");
+
+  if (!entries) return [];
+
+  // Filter to entries that apply to this analysis depth
+  return entries
+    .filter((e) => {
+      const depths = e.analysis_depths as string[];
+      return Array.isArray(depths) && depths.includes(analysisDepth);
+    })
+    .map((e) => ({
+      gate_name: e.gate_name,
+      gate_sequence: e.gate_sequence,
+      is_skippable: e.is_skippable,
+    }));
+}
+
+/**
+ * Run a single gate checkpoint:
+ *   1. Create (or reuse) a job_gates row for this gate
+ *   2. Set analysis_jobs.status = 'awaiting_gate'
+ *   3. Poll job_gates.status every 30s until confirmed/skipped or timeout
+ *   4. Return { passed, gateId }
+ *
+ * Uses upsert semantics on (job_id, gate_sequence) to survive retries
+ * without creating duplicate gate rows.
+ */
+async function runGate(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  jobId: string,
+  entry: GateConfigEntry,
+  timeoutSeconds: number,
+): Promise<{ passed: boolean; gateId: string | null }> {
+  // Upsert so a retry doesn't create a second pending row for the same gate
+  const { data: gateRow, error } = await db
+    .from("job_gates")
+    .upsert(
+      {
+        job_id: jobId,
+        gate_name: entry.gate_name,
+        gate_sequence: entry.gate_sequence,
+        status: "pending",
+      },
+      { onConflict: "job_id,gate_sequence", ignoreDuplicates: false },
+    )
+    .select("id, status")
+    .single();
+
+  if (error || !gateRow) {
+    throw new Error(`Failed to create job_gates row for ${entry.gate_name}: ${error?.message}`);
+  }
+
+  const gateId = gateRow.id;
+
+  // If the gate was already confirmed/skipped (retry scenario), pass immediately
+  if (gateRow.status === "confirmed" || gateRow.status === "skipped") {
+    return { passed: true, gateId };
+  }
+
+  // Suspend job at gate
+  await db.from("analysis_jobs").update({ status: "awaiting_gate" }).eq("id", jobId);
+
+  // Poll job_gates.status every 30s until confirmed, skipped, or timeout
+  const POLL_INTERVAL = 30;
+  const maxPolls = Math.ceil(timeoutSeconds / POLL_INTERVAL);
+
+  for (let i = 0; i < maxPolls; i++) {
+    await wait.for({ seconds: POLL_INTERVAL });
+
+    const { data } = await db.from("job_gates").select("status").eq("id", gateId).single();
+
+    if (data?.status === "confirmed" || data?.status === "skipped") {
+      return { passed: true, gateId };
+    }
+
+    // Check if the job itself was cancelled externally
+    const { data: job } = await db.from("analysis_jobs").select("status").eq("id", jobId).single();
+
+    if (job?.status === "cancelled") {
+      return { passed: false, gateId };
+    }
+  }
+
+  return { passed: false, gateId }; // Timed out
+}
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -442,38 +548,9 @@ async function buildModelSummary(
 }
 
 /**
- * Poll the analysis_jobs status column until it reaches the expected gate
- * confirmation status, or until the timeout is reached.
- *
- * The UI sets the status to `gate1_confirmed` / `gate2_confirmed` via an
- * authenticated API route after the user reviews and approves.
- */
-async function pollForGateConfirmation(
-  db: ReturnType<typeof getSupabaseAdmin>,
-  jobId: string,
-  confirmedStatus: string,
-  timeoutSeconds: number,
-): Promise<boolean> {
-  const POLL_INTERVAL = 30; // seconds
-  const maxPolls = Math.ceil(timeoutSeconds / POLL_INTERVAL);
-
-  for (let i = 0; i < maxPolls; i++) {
-    await wait.for({ seconds: POLL_INTERVAL });
-
-    const { data } = await db.from("analysis_jobs").select("status").eq("id", jobId).single();
-
-    if (data?.status === confirmedStatus) return true;
-    if (data?.status === "cancelled") return false;
-  }
-
-  return false; // Timed out
-}
-
-/**
- * Read user override values that the UI stored before confirming Gate 1.
- * Overrides are flagged by a null user_override_at (set by UI before gate confirm).
- * The actual convention is: UI writes user_override_value without setting
- * user_override_at; the pipeline then sets user_override_at when it applies them.
+ * Read user override values written to extracted_inputs before gate confirm.
+ * Convention: UI writes user_override_value without setting user_override_at.
+ * The pipeline then sets user_override_at when it applies them here.
  */
 async function readPendingOverrides(
   db: ReturnType<typeof getSupabaseAdmin>,
