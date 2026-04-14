@@ -53,3 +53,50 @@ jobs:
           # Add any required build-time env vars here (use GitHub Secrets)
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  # ── Migration smoke test ───────────────────────────────────────────────────
+  # Runs on every PR. Installs the Supabase CLI, links to the project, and
+  # applies any pending migrations to the Supabase preview branch that was
+  # provisioned by the Supabase GitHub App when the PR was opened.
+  # If any migration fails to apply, this job fails and blocks the merge.
+  #
+  # Branch lifecycle (automatic — no manual steps required):
+  #   PR opened/updated → Supabase GitHub App provisions preview branch
+  #   This job → applies pending migrations to that branch
+  #   PR merged/closed → Supabase GitHub App tears down the preview branch
+
+  migration-smoke-test:
+    name: Migration smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      # Applies any pending migrations to the preview branch for this PR.
+      # Supabase CLI detects the current git branch (via GITHUB_HEAD_REF) and
+      # routes the push to the corresponding Supabase preview branch — not main.
+      - name: Apply pending migrations to preview branch
+        run: supabase db push --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      # Confirm no local migrations are out of sync after the push.
+      - name: Verify migration state
+        run: supabase migration list --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}

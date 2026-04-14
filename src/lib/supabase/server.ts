@@ -1,13 +1,14 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "./database.types";
+
+type HermesServerClient = ReturnType<typeof createServerClient<Database>>;
 
 /**
  * Supabase client for use in Server Components, Server Actions, and Route Handlers.
  * Must be called inside a request context (not at module level).
  */
-export async function createClient(): Promise<SupabaseClient<Database>> {
+export async function createClient(): Promise<HermesServerClient> {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
