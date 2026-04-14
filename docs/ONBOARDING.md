@@ -111,3 +111,4 @@ Deployments are handled automatically via Vercel:
 - **Owner**: Clinton McCoy (clintmccoy)
 - **Repo**: https://github.com/clintmccoy/hermes
 - **Linear**: https://linear.app/mccoymc/project/project-hermes
+# Supabase branching smoke test
