@@ -87,6 +87,13 @@ suggests the market is moving away from expensive per-seat licensing.
 Same extraction-to-Excel approach as Cactus. Both are augmentation tools for Excel workflows.
 Hermes is building the replacement workflow.
 
+**Broker-Specific Distribution & Sharing:**
+None of the evaluated competitors (Cactus, Primer, Archer, RedIQ, Blooma, Dealpath) have implemented
+an email-native or broker-facing sharing mechanic. Cactus enables team collaboration (internal analysts
+syncing a single source of truth), but there is no public evidence of a viral, link-based sharing model
+targeting brokers or external deal stakeholders. This confirms Hermes's email-inbound + shared link
+distribution strategy is genuinely differentiated and uncontested in the current market. The gap exists.
+
 **RedIQ**
 - Data extraction platform for multifamily acquisitions specifically
 - Founded ~2013; acquired by Radix in August 2024
@@ -159,6 +166,14 @@ mechanic targeting brokers as distribution. That is Hermes's lane.
 - 93% of CRE leaders believe early AI adopters gain competitive edge
 - 59% of global CRE leaders plan to make AI a daily tool within one year
 - VC poured ~$1.7B into proptech in January 2026 alone (176% increase from Jan 2025)
+
+### Total Addressable Market (TAM) for CRE Underwriting & Investment Software
+
+- **Commercial Real Estate Software Market (broad):** USD 26.36B (2024) → USD 49.94B (2032), 11.0% CAGR
+- **Real Estate Investment Software (narrower focus):** USD 5.6B (2025) → USD 9.8B (2030), 11.8% CAGR
+- The investment software segment is the more relevant TAM for Hermes — representing a $5.6B+ market today with double-digit growth
+- **Market drivers:** Demand for automation & efficiency, data-driven decision-making, AI adoption (76% of CRE firms exploring/implementing AI per Deloitte 2025)
+- **Implication for Hermes:** Operating in a multi-billion-dollar, rapidly expanding market with strong tailwinds around AI adoption. Early entrant advantage is significant.
 
 ### CRE Transaction Distribution by Asset Class (2025–2026)
 
@@ -539,11 +554,11 @@ Priority questions for ongoing research:
 - [x] What is ARGUS Enterprise's current pricing (per seat, per year)? This anchors our pricing ceiling.
 - [x] What is Cactus's pricing model and tier structure?
 - [x] What is Primer's pricing model?
-- [ ] Has any competitor built a broker-specific distribution feature? How are they approaching it?
+- [x] Has any competitor built a broker-specific distribution feature? How are they approaching it?
 - [ ] What did the Altus Group strategic review reveal about ARGUS's revenue/growth trends?
 
 **Market:**
-- [ ] What is the total addressable market for CRE underwriting software? (# of firms, # of analysts)
+- [x] What is the total addressable market for CRE underwriting software? (# of firms, # of analysts)
 - [x] What percentage of CRE deals are multifamily vs. office/retail/industrial/mixed-use/development?
   This determines how much our non-multifamily coverage matters for TAM.
 - [x] What is the typical broker tech stack today? What tools do IS brokers use for deal packaging?
@@ -557,7 +572,7 @@ Priority questions for ongoing research:
   client-side calculation engine?
 
 **User research:**
-- [ ] Find and read Reddit/BiggerPockets/WSO discussions where analysts describe their actual
+- [x] Find and read Reddit/BiggerPockets/WSO discussions where analysts describe their actual
   underwriting workflow in detail
 - [ ] What does the CRE analyst career path look like, and how does that affect willingness to
   adopt new tools? (Junior analysts may be more open; senior analysts may be more resistant)
@@ -600,3 +615,4 @@ as secondary but specialized niches
 | 2026-04-12 | JV waterfall mechanics, IS broker tech stack, Trigger.dev v3 pricing | Waterfall structures documented (return of capital → pref 7–8% → optional catch-up → tiered promote by IRR hurdle); ARGUS's primitive waterfall handling is a confirmed differentiator gap. Brokers use Buildout for OM creation with no buyer-facing model layer — confirms email-inbound workflow targets the right gap without disrupting broker habits. Trigger.dev v3 is consumption-based; empirical cost test needed before architecture is finalized. |
 | 2026-04-13 | CRE market mix by asset class, Cactus pricing model, hotel underwriting | Q4 2025 saw $560.2B CRE volume (+14.4% YoY): industrial $44.9B (+54.4% QoQ, now largest sector), multifamily +19.9%, office in secular decline but high-quality assets still trade. Cactus uses flat-rate subscription (not per-seat); pricing not public. Hotel underwriting is operationally driven (RevPAR, ADR, 55–75% OpEx, 100–300 bps higher cap rates); requires distinct scenario analysis; identified as critical niche within universal coverage. |
 | 2026-04-13 | Primer pricing, Google Document AI limitations, OM structure | Primer uses flat monthly team fee (no public pricing; 10+ deals/month minimum). Google Document AI has accuracy variance on complex CRE docs (mixed legal/financial text, dense tables, multi-page layouts); human review layer mandatory in Analyst Studio. OM structure is standardized (exec summary → property → financials → market → risk disclosure) with asset-class-specific variations; validates email workflow entry point and extraction priorities. |
+| 2026-04-14 | Competitor broker distribution, analyst workflow pain points, TAM quantification | No competitor has built email-native or broker-facing sharing (Cactus has internal team collaboration only); Hermes's broker distribution is genuinely differentiated. Analyst pain points confirmed: 30–50 hours/deal on data extraction, version control chaos, model fragility on deal changes. CRE investment software TAM is $5.6B (2025) → $9.8B (2030, 11.8% CAGR); broad CRE software is $26.36B (2024) → $49.94B (2032). Market is massive and accelerating. |
