@@ -9,6 +9,34 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — v0 Agentic Pipeline [MMC-33]
+
+**Infrastructure**
+- `trigger.config.ts` — Trigger.dev v3 project config; tasks discovered from `src/trigger/`
+- Added `@trigger.dev/sdk@^3.0.0`, `@anthropic-ai/sdk@^0.40.0`, `@google-cloud/documentai@^9.0.0` to `package.json`
+- `.env.example` updated: `TRIGGER_API_KEY` → `TRIGGER_SECRET_KEY` (correct v3 name); added `TRIGGER_PROJECT_ID`
+
+**Core pipeline — `src/trigger/`**
+- `analysis-job.ts` — main Trigger.dev orchestrator; wires all 6 steps; enforces Gate 1 + Gate 2 using `wait.createToken()`; error path never reaches credit deduction
+- `lib/types.ts` — shared pipeline types: `AnalysisDepth`, `ADVISOR_MAX_USES`, model version constants, gate payload shapes, `AgentEventType` enum
+- `lib/advisor.ts` — Anthropic advisor wrapper; declares `advisor_20260301` beta primitive per ADR 010; enforces `max_uses` cap by depth; accumulates token provenance
+- `lib/events.ts` — `agent_events` logger; append-only; fire-and-forget (event write failures never kill the pipeline); `EventSequencer` for monotonic sequence numbers
+- `lib/document-ai.ts` — Google Document AI client; OCR + table extraction; bounding box preservation for provenance; partial extraction graceful degradation
+
+**Subtasks**
+- `subtasks/document-ingestion.ts` — downloads PDF from Supabase Storage, runs Document AI, stores raw extraction JSON, creates `document_refs` row
+- `subtasks/extraction.ts` — two-pass: executor first pass → advisor consultation on flagged fields → writes `extracted_inputs` with full provenance
+- `subtasks/module-selection.ts` — reads deal characteristics + `module_specs`, selects modules, advisor on novel asset classes, writes `deal_model_compositions`
+- `subtasks/model-construction.ts` — executor assembles DCF assumptions, advisor on novel discount rate decisions, runs hybrid calc engine (stub for now), writes `model_results` + KPIs
+- `subtasks/credit-deduction.ts` — idempotent via `idempotency_key`; only reachable on success path; updates `credit_ledger` + `analysis_jobs.credits_deducted_at`
+
+**Tests — `src/trigger/__tests__/`**
+- `credit-deduction.test.ts` — correct cost per depth, idempotency (second call is no-op), orchestrator error path never reaches deduction
+- `advisor.test.ts` — `max_uses` per depth, cap enforcement, token accumulation, ordering invariant
+- `provenance.test.ts` — exact model version strings (no `-latest`), all required fields on completion, re-extraction is append-only
+
+---
+
 ### Added
 - Initial repo structure and documentation scaffolding
 - CLAUDE.md project instructions for Claude Code sessions
