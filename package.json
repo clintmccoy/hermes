@@ -17,12 +17,12 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.40.1",
+    "@anthropic-ai/sdk": "^0.90.0",
     "@google-cloud/documentai": "^9.6.0",
     "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.49.4",
+    "@supabase/supabase-js": "^2.104.0",
     "@trigger.dev/sdk": "^3.3.17",
-    "next": "^16.2.3",
+    "next": "^16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -42,7 +42,7 @@
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "lint-staged": "^16.4.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "5.9.3",
