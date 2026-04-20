@@ -110,7 +110,12 @@ export const documentIngestionTask = task({
         .insert({
           uploaded_file_id: uploadedFileId,
           document_type: inferDocumentType(file.file_name),
-          source_quality: extraction.failedPages.length > 0 ? "partial" : "good",
+          source_quality:
+            extraction.failedPages.length > 3
+              ? "weak"
+              : extraction.failedPages.length > 0
+                ? "reasonable"
+                : "strong",
         })
         .select("id")
         .single();
@@ -159,9 +164,18 @@ function inferDocumentType(fileName: string): string {
 
   if (lower.includes("rent_roll") || lower.includes("rentroll")) return "rent_roll";
   if (lower.includes("t12") || lower.includes("trailing_12")) return "t12";
-  if (lower.includes("om") || lower.includes("offering_memo")) return "om";
+  if (
+    lower.includes("offering_mem") ||
+    lower.includes(" om ") ||
+    lower.includes("_om_") ||
+    lower.includes("-om-")
+  )
+    return "offering_memorandum";
   if (lower.includes("appraisal")) return "appraisal";
-  if (lower.includes("budget") || lower.includes("pro_forma")) return "pro_forma";
+  if (lower.includes("budget")) return "budget";
+  if (lower.includes("lease")) return "lease";
+  if (lower.includes("loan")) return "loan_documents";
+  if (lower.includes("construction")) return "construction_budget";
 
-  return "unknown";
+  return "other";
 }

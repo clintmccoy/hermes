@@ -88,6 +88,10 @@ export async function extractDocument(pdfBytes: Buffer): Promise<DocumentAiResul
       content: pdfBytes.toString("base64"),
       mimeType: "application/pdf",
     },
+    // imagelessMode increases the per-request page limit from 15 → 30.
+    // Required for OMs and other longer documents.
+    imagelessMode: true,
+    skipHumanReview: true,
   });
 
   // processDocument returns [IProcessResponse, operation, rawResponse]

@@ -23,10 +23,6 @@ function getClient(): Anthropic {
   if (!_client) {
     _client = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY!,
-      defaultHeaders: {
-        // Opt into the advisor primitive (ADR 010, Decision 2)
-        "anthropic-beta": "advisor-2026-03-01",
-      },
     });
   }
   return _client;
@@ -62,6 +58,7 @@ export interface AdvisorEnabledRequest {
   system: string;
   messages: Anthropic.MessageParam[];
   tools?: Anthropic.Tool[];
+  tool_choice?: Anthropic.ToolChoice;
   max_tokens?: number;
 }
 
@@ -124,17 +121,8 @@ You have ${remainingUses} advisor invocation${remainingUses === 1 ? "" : "s"} re
     max_tokens: request.max_tokens ?? 4096,
     system: request.system,
     messages: request.messages,
-    // advisor field: declares the advisor model and remaining cap
-    // (anthropic-beta: advisor-2026-03-01 activates this field)
-    ...(advisorAvailable
-      ? {
-          advisor: {
-            model: ADVISOR_MODEL,
-            max_uses: remainingUses,
-          },
-        }
-      : {}),
     ...(tools.length > 0 ? { tools } : {}),
+    ...(request.tool_choice ? { tool_choice: request.tool_choice } : {}),
   });
 
   // Count advisor invocations from response usage metadata

@@ -142,6 +142,7 @@ export const modelConstructionTask = task({
         },
       ],
       tools: [ASSUMPTION_TOOL],
+      tool_choice: { type: "tool", name: "submit_model_assumptions" },
       max_tokens: 4096,
     });
 
@@ -166,6 +167,7 @@ export const modelConstructionTask = task({
           },
         ],
         tools: [ASSUMPTION_TOOL],
+        tool_choice: { type: "tool", name: "submit_model_assumptions" },
         max_tokens: 2048,
       });
 

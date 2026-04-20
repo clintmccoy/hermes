@@ -189,6 +189,7 @@ export const moduleSelectionTask = task({
         },
       ],
       tools: [MODULE_SELECTION_TOOL],
+      tool_choice: { type: "tool", name: "submit_module_selection" },
       max_tokens: 4096,
     });
 
@@ -215,6 +216,7 @@ export const moduleSelectionTask = task({
           },
         ],
         tools: [MODULE_SELECTION_TOOL],
+        tool_choice: { type: "tool", name: "submit_module_selection" },
         max_tokens: 2048,
       });
 
@@ -245,7 +247,7 @@ export const moduleSelectionTask = task({
         analysis_job_id: jobId,
         deal_id: dealId,
         modules_selected: selection.modules_selected,
-        composition_status: "pending_confirmation",
+        composition_status: "draft",
         override_notes: selection.selection_rationale,
       })
       .select("id")

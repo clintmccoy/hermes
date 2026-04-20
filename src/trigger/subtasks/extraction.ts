@@ -146,6 +146,7 @@ export const extractionTask = task({
         },
       ],
       tools: [EXTRACTION_TOOL],
+      tool_choice: { type: "tool", name: "submit_extracted_fields" },
       max_tokens: 8192,
     });
 
@@ -202,20 +203,24 @@ export const extractionTask = task({
     }
 
     // ── 6. Write extracted_inputs rows ────────────────────────────────────────
-    const inputsToInsert = extracted.fields.map((field) => ({
-      analysis_job_id: jobId,
-      deal_id: dealId,
-      org_id: orgId,
-      source_document_ref_id: documentRefId,
-      field_name: field.field_name,
-      extracted_value: field.extracted_value as Awaited<ReturnType<typeof db.from>>["data"],
-      extraction_model: EXECUTOR_MODEL,
-      confidence_score: field.confidence_score,
-      source_page_number: field.source_page_number,
-      source_text_excerpt: field.source_text_excerpt,
-      unit: field.unit,
-      advisor_invoked: field.advisor_invoked || field.needs_advisor,
-    }));
+    // Filter out fields with null/undefined extracted_value — the schema requires NOT NULL.
+    // These represent fields the model couldn't find in the document.
+    const inputsToInsert = extracted.fields
+      .filter((field) => field.extracted_value !== null && field.extracted_value !== undefined)
+      .map((field) => ({
+        analysis_job_id: jobId,
+        deal_id: dealId,
+        org_id: orgId,
+        source_document_ref_id: documentRefId,
+        field_name: field.field_name,
+        extracted_value: field.extracted_value as Awaited<ReturnType<typeof db.from>>["data"],
+        extraction_model: EXECUTOR_MODEL,
+        confidence_score: field.confidence_score,
+        source_page_number: field.source_page_number,
+        source_text_excerpt: field.source_text_excerpt,
+        unit: field.unit,
+        advisor_invoked: field.advisor_invoked || field.needs_advisor,
+      }));
 
     const { error: insertError } = await db.from("extracted_inputs").insert(inputsToInsert);
 
