@@ -29,7 +29,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ ga
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   // TODO(MMC-35): re-enable once login flow exists. Bypassed for integration testing.
-  const user = null; // stub — no real user during integration test
+  // const { data: { user } } = await supabase.auth.getUser();
+  // if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // ── Fetch gate ──────────────────────────────────────────────────────────────
   const { data: gate } = await supabase
@@ -71,7 +72,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ ga
     .update({
       status: "skipped",
       skipped_at: new Date().toISOString(),
-      skipped_by: user?.id ?? null,
+      skipped_by: null, // TODO(MMC-35): use user.id once auth is wired
     })
     .eq("id", gateId);
 

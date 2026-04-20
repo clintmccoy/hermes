@@ -44,7 +44,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gat
   // TODO(MMC-35): re-enable once login flow exists. Bypassed for integration testing.
   // const { data: { user } } = await supabase.auth.getUser();
   // if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const user = null; // stub — no real user during integration test
 
   // ── Fetch gate ──────────────────────────────────────────────────────────────
   // RLS on job_gates limits SELECT to org members, so a missing row means
@@ -83,7 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gat
       .update({
         user_override_value: override.value as never,
         user_override_at: overrideAt,
-        user_override_by: user?.id ?? null,
+        user_override_by: null, // TODO(MMC-35): use user.id once auth is wired
       })
       .eq("id", override.extractedInputId)
       .eq("analysis_job_id", gate.job_id); // Safety: scope to this job
@@ -95,7 +94,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gat
     .update({
       status: "confirmed",
       confirmed_at: new Date().toISOString(),
-      confirmed_by: user?.id ?? null,
+      confirmed_by: null, // TODO(MMC-35): use user.id once auth is wired
     })
     .eq("id", gateId);
 
