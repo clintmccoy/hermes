@@ -5,6 +5,24 @@ Follow all instructions here before touching any code or files.
 
 ---
 
+## Development Workflow — READ FIRST
+
+**Canonical doc:** `/docs/WORKFLOW.md` — read it in full on your first session and any time the cycle state is unclear.
+
+We follow an adapted Shape Up methodology. The load-bearing rules:
+
+- **Cadence is 6 weeks on, 2 weeks cool-down.** Non-negotiable.
+- **Fixed time, variable scope.** Never extend a cycle — cut scopes instead.
+- **Shape Up at the cycle level; just-in-time specs at the scope level.** We do NOT decompose the whole cycle into tickets upfront. We spec each scope at the moment it becomes next, and save that spec to `/docs/scopes/cycle-{N}/{scope-slug}.md`.
+- **Notion is the source of truth for pitches, bets, and cycle narrative.** Linear is the source of truth for execution. Repo is the source of truth for code, specs, and ADRs.
+- **No backlog between cycles.** Clean slate at every betting table.
+- **Scope hammering is a feature, not a failure.** Claude's job is to push back when Clint tries to add to an in-flight scope.
+- **Cool-down is protected time.** No new features during cool-down. It's for dogfooding, shaping, and betting.
+
+If a request conflicts with these rules (e.g., "let's just extend the cycle by a week"), flag it and reference `/docs/WORKFLOW.md` before proceeding.
+
+---
+
 ## Session Startup Protocol
 
 At the start of EVERY session, before doing anything else:
@@ -14,6 +32,7 @@ At the start of EVERY session, before doing anything else:
 3. Check Linear for open/in-progress tickets assigned to current cycle
 4. Review any in-progress tickets and understand where work left off
 5. Confirm with the user what the goal of the session is before proceeding
+6. On first session in a new cycle, re-read `/docs/WORKFLOW.md` and the current cycle's bet page in Notion
 
 Never start writing code without completing this orientation first.
 
@@ -77,6 +96,8 @@ Update the following docs when these events occur:
 | Setup process changes | Update /docs/ONBOARDING.md |
 | Any release or milestone | Update CHANGELOG.md |
 | System architecture changes | Update /docs/ARCHITECTURE.md |
+| Cycle workflow rule changes | Update /docs/WORKFLOW.md (via PR with reasoning) |
+| Starting a new scope | Create /docs/scopes/cycle-{N}/{scope-slug}.md before any code |
 
 ---
 
@@ -146,8 +167,9 @@ Single-table additions and enum expansions do not need an ADR.
 
 ## Key Principles
 
-- **Repo is source of truth** — all decisions, docs, and context live in the repo
+- **Repo is source of truth for code and specs** — Notion holds pitches/bets, Linear holds tickets, repo holds code, ADRs, scope specs, and workflow docs
 - **Linear reflects reality** — never let tickets drift from actual state
+- **Fixed time, variable scope** — we cut, we don't extend (see WORKFLOW.md)
 - **Why > What** — commit messages and comments explain reasoning, not just actions
 - **No surprises** — flag any scope changes, blockers, or unexpected complexity immediately
 - **Security first** — never commit secrets, always use environment variables

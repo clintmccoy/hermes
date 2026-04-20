@@ -102,7 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       executor_model: "claude-sonnet-4-6",
       advisor_model: "claude-opus-4-6",
       analysis_depth: DEFAULT_ANALYSIS_DEPTH,
-      job_type: "document_analysis",
+      job_type: "analysis",
       status: "queued",
     })
     .select("id")
