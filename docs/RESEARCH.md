@@ -90,6 +90,8 @@ suggests the market is moving away from expensive per-seat licensing.
 Same extraction-to-Excel approach as Cactus. Both are augmentation tools for Excel workflows.
 Hermes is building the replacement workflow.
 
+**Cactus pricing (2026 update):** [Cactus continues to use a flat-rate subscription model with no per-seat tiering](https://www.trycactus.com/pricing). Exact pricing tiers and dollar amounts remain quote-only and not publicly disclosed on their pricing page as of April 2026. This reinforces the market trend away from per-seat licensing (ARGUS model) toward flat-rate team/organization models. For Hermes, this validates continued pursuit of flat-rate tiers for smaller shops and usage-based pricing for larger teams.
+
 **Broker-Specific Distribution & Sharing:**
 None of the evaluated competitors (Cactus, Primer, Archer, RedIQ, Blooma, Dealpath) have implemented
 an email-native or broker-facing sharing mechanic. Cactus enables team collaboration (internal analysts
@@ -698,6 +700,17 @@ Hermes's Analyst Studio must expose *all* calculation logic and source provenanc
 
 ---
 
+### PropTech Funding Momentum & Competitive Capital Environment (2026 Research)
+
+[Q1 2026 proptech funding reached $281 million across 10 deals, nearly 9x the $31 million raised in Q1 2025](https://creti.org/insights/february-2026-proptech-funding-capital). [February 2026 alone saw $1.04 billion raised across 38 proptech transactions, with a median deal size of $6.6 million](https://creti.org/insights/february-2026-proptech-funding-capital). [Notable mega-rounds in early 2026 include: Propy ($100M credit facility for AI/blockchain real estate closing), Dwelly ($93M equity and debt), and Huspy ($59M Series B)](https://creti.org/insights/february-2026-proptech-funding-capital).
+
+**Capital allocation priorities (2026):**
+[Capital remains available but increasingly selective, with investors prioritizing companies with strong product-market fit, proven customer stickiness, and retention metrics](https://creti.org/insights/february-2026-proptech-funding-capital). [AI-powered platforms are receiving disproportionate share of funding, reflecting industry-wide shift toward automation](https://creti.org/insights/february-2026-proptech-funding-capital).
+
+**Implication for Hermes:** The funding environment is extremely active for AI-focused CRE platforms. This validates market demand but also signals competitive intensity — expect multiple well-funded entrants targeting overlapping use cases (acquisition underwriting, AI extraction, workflow automation) through 2026–2027. Hermes's differentiation on broker distribution and modular engine (vs. Excel augmentation) must be crystallized early; capital will flow to differentiated teams that capture broker distribution before incumbents. Window for establishing broker partnerships and viral loops is NOW — 6–12 months before better-funded competitors emerge with similar positioning.
+
+---
+
 ### Quantified Time Savings: Manual vs. Automated Underwriting
 
 Empirical time savings data from 2025–2026 validates the market need for automation: [At a 10–15 OM per week pace, analysts spend 20–30 minutes per deal on data entry before making a kill decision, totaling 4–6 hours per week of skilled analyst time consumed by non-insight-generating work](https://smartcapitalcenter.com/blog-post/top-cre-investment-underwriting-software-and-automation-platforms-compared). Across a month, this compounds to 16–24 hours of wasted capacity per analyst.
@@ -786,6 +799,15 @@ The CRE software ecosystem is moving toward interconnectedness. Understanding in
 [ARGUS results are often exported to Excel for further analysis and manipulation, with support for ARGUS Valuation DCF, Developer and Enterprise and Microsoft Excel helping users perform accurate financial analysis](https://www.altusgroup.com/insights/argus-api-is-now-available/). The Excel export/import loop remains a standard workflow, indicating that native Excel interoperability is expected by institutional users.
 
 **Implication for Hermes:** Hermes should expose an API from day one to enable integrations with PM systems, deal management platforms (e.g., Dealpath), and lending platforms. Export packs to Excel (mentioned in the Hermes product roadmap) align with industry expectations. The ARGUS API's existence removes any objection to Hermes's API strategy — institutional users expect APIs as table stakes. Early integrations with deal management and PM systems (especially those used by brokers) would accelerate adoption.
+
+### Buildout Integration Ecosystem & Broker Distribution Network (2026 research)
+
+[Buildout is the dominant CRE software platform for brokerages, with 50,000+ CRE brokers using the platform to find, win, and sell or lease listings faster](https://www.buildout.com/). [Buildout's open API enables integrations with top CRE listing sites and syndication partners, including the CommercialEdge Network (10 million monthly visitors, 100,000+ qualified leads monthly for Buildout users)](https://www.buildout.com/partners).
+
+**Partnership ecosystem breadth:**
+[Buildout integrates across multiple categories: listing syndication (CommercialEdge, major CRE listing sites), marketplace partners (RI Marketplace for auctions, Brevitas for investor connections, AnthemIQ for tenant representation), and marketing partners (Constant Contact email, up to 20% discount for Buildout users)](https://www.buildout.com/partners). The CommercialEdge Network alone generates substantial deal flow visibility across 50,000+ Buildout users.
+
+**Strategic implication for Hermes:** Buildout is the broker-facing distribution layer, used by tens of thousands of brokers who create and distribute OMs daily. Unlike Dealpath (investor/buyer-focused), Buildout is the listing/deal origination point for the majority of institutional CRE deal flow. A partnership or integration with Buildout would allow: (1) auto-ingestion of OM data from Buildout-created listings into Hermes models (eliminating analyst data entry), (2) embedding Hermes underwriting as a "next layer" feature within Buildout workflows (brokers create OM → analysts run Hermes analysis → model links shared back to broker), (3) viral distribution: brokers forwarding Hermes model links to buyers as part of their offer package. This is a higher-leverage partnership opportunity than Dealpath, as it sits at the deal origination point, not the buyer evaluation stage.
 
 ### Dealpath Integration Opportunities & Broker OM Workflow (2026 Research)
 
@@ -899,7 +921,7 @@ Priority questions for ongoing research:
 
 ## 6. Recent Alerts
 
-**Industrial is now the dominant CRE sector by Q4 2025 transaction volume ($44.9B, +54.4% QoQ).**
+**Industrial is now the dominant CRE sector by Q4 2025 transaction volume ($44.9B, +54.4% QoY).**
 This marks a shift from the historical multifamily-first market. E-commerce logistics and last-mile
 delivery are driving demand. For Hermes, this suggests:
 1. Industrial-focused underwriting should be a co-equal priority with multifamily, not secondary
@@ -907,6 +929,26 @@ delivery are driving demand. For Hermes, this suggests:
 should be first-class engine features, not add-ons
 3. The market is increasingly bifurcated: industrial/multifamily dominating; office/retail/hospitality
 as secondary but specialized niches
+
+---
+
+**PropTech funding surging in early 2026: $281M in Q1 2026 (9x YoY), $1.04B in February alone.**
+February 2026 mega-rounds (Propy $100M, Dwelly $93M, Huspy $59M) indicate intense competitive capital environment.
+For Hermes:
+1. Well-funded competitors are emerging in overlapping use cases (acquisition underwriting, AI extraction, workflow automation)
+2. Capital is flowing to differentiated teams with strong product-market fit and proven retention metrics
+3. **Time-critical**: Hermes must establish broker distribution and viral loops within 6–12 months before competitors scale
+4. Early entrant advantage for broker partnerships (especially Buildout integration) is shrinking — move now before competitive field hardens
+
+---
+
+**AI regulatory compliance is now table stakes for institutional adoption (2026).**
+38 states enacted ~100 AI measures in 2025; Colorado AI Act effective June 30, 2026. CFPB/OCC/FDIC now require
+auditable, traceable AI outputs with human-in-the-loop oversight. For Hermes:
+1. Regulatory compliance is no longer a nice-to-have — it's a mandatory feature for institutional GTM
+2. Hermes's emphasis on first-class provenance (every input/output traceable to source) becomes a competitive moat
+3. Firms evaluating Hermes will require proof of auditability and defensibility for IC/LP presentation
+4. Marketing messaging should emphasize regulatory alignment as a de-risking mechanism for institutional investors
 
 ---
 
@@ -925,3 +967,4 @@ as secondary but specialized niches
 | 2026-04-17 | Development finance mechanics; broker commission economics; alternative data adoption; CRE API ecosystem | Documented development vs. acquisition modeling: development uses cost methodology (land + construction costs), acquisitions use income approach (cap rates/NOI). Development is more complex (construction financing, absorption, pre-leasing). CRE brokers earn 3–6% commission on sales (varies by deal size: <$1M at 5–6%, $5M+ at 2–4%); Q4 2025 saw $171.6B volume (+29% QoQ). Alternative data rapidly adopting: Cape Analytics ($75M funded), Density ($125M funded), CRED iQ + Placer.ai partnership; AI models achieving 2.4% valuation error. ARGUS API now enables third-party integrations; ecosystem moving toward API-first architecture. Implications: (1) development modeling is a roadmap feature for universal coverage, not launch blocker; (2) broker incentives align with deal velocity — Hermes speeds underwriting; (3) alternative data extensibility important 2–3 years out; (4) Hermes API strategy de-risked by ARGUS precedent. |
 | 2026-04-18 | AI regulatory compliance; lease abstraction SOTA; institutional model validation expectations; analyst time savings quantification | Added four new research areas critical for Hermes GTM and product positioning: (1) **AI Compliance (2026)**: Colorado AI Act effective June 30, 2026 requires AI impact assessments and human-in-the-loop oversight; 38 states enacted ~100 AI measures in 2025 becoming enforceable. CFPB/OCC/FDIC now expect auditable, traceable AI outputs — "the model said so" is not acceptable for investment decisions. Hermes's first-class provenance aligns with regulatory expectations. (2) **Lease Abstraction Accuracy**: Industry SOTA is 90–99.5% accuracy; human-in-the-loop review (analyst verification of complex terms) is standard practice, not premium. Lease abstraction is baseline, not differentiator — focus should be downstream modeling, not extraction perfection. (3) **Institutional Auditability**: Investors require formula-based (not hardcoded) outputs; every number must be traceable, auditable, and defensible for IC/LP review. Alt-X and Gyde exemplify this with end-to-end audit trails in Excel. Governance frameworks now non-negotiable. (4) **Time Savings**: Empirical data: analysts spend 20–30 min/deal on data entry (4–6 hours/week), equivalent to 16–24 hours/month wasted capacity. AI acceleration achieves full 5-year models in <5 min (vs. days manual). Market signal: proptech $16.7B in 2025, AI CRE tools growing 42% annually. Implication: Hermes messaging should emphasize 2–3x deal capacity increase per analyst as ROI anchor. |
 | 2026-04-20 | Dealpath API ecosystem; broker OM workflow; office market repositioning opportunity; lease abstraction tool landscape | Conducted focused research on four ecosystem integration and market opportunities: (1) **Dealpath Integration Strategy**: Dealpath API enables integrations with Yardi, MRI Software, Salesforce; MSCI Real Capital Analytics comps integrated directly; Cushman & Wakefield, JLL, CBRE on Dealpath Connect. High-leverage integration opportunity: Hermes could sync deal data from Dealpath into underwriting models (property metadata, rent roll), export underwriting results back to Dealpath for team review, link Hermes assumptions to Dealpath comps. (2) **Broker OM Workflow**: Brokers use 7+ tools per deal; CREBuilder creates OMs in ~30 min, CREOP is enterprise unified platform, TheAnalyst integrates OM + modeling. Industry trend: moving toward unified platforms to eliminate handoffs and data duplication. Implication: Hermes should integrate with Buildout/CREOP/TheAnalyst to auto-ingest deal data from OM, eliminating analyst data entry. Partnership with Buildout (dominant OM platform) is highest-leverage broker entry point. (3) **Office Market Recovery (2026)**: Vacancy declining to 15.9% by end-2026; institutional capital (23% of transactions, up from 18%) targeting repositioning and value-add on distressed assets. Market shaping up to be selective/quality-driven repositioning play, not broad rebound. Implication: Office repositioning modeling (renovation scenarios, lease-up curves, RTO adoption sensitivity, regulatory complexity) is a material underwriting niche that Hermes should support as a co-equal to multifamily/industrial. (4) **Lease Abstraction Tools**: Prophia (enterprise SaaS, 95–99.5% accuracy) vs. Lextract ($10/lease, minutes turnaround, lighter-weight). Manual baseline 85–92%. Human-in-the-loop review is standard, not premium. Implication: Lease abstraction is a commodity; Hermes should partner (Prophia/Lextract API) or integrate with Google Document AI + analyst review rather than build in-house. Differentiation is downstream (how lease terms drive cash flow, auditability, scenario modeling), not extraction accuracy. |
+| 2026-04-21 | Cactus pricing (2026 update); Buildout integration ecosystem & broker distribution; PropTech funding momentum; AI regulatory landscape | Autonomous daily research on four priority topics completed: (1) **Cactus Pricing Validation (2026)**: Confirmed Cactus uses flat-rate subscription model (not per-seat tiering); exact pricing remains quote-only and not publicly disclosed on their pricing page as of April 2026. This reinforces market trend away from per-seat licensing (ARGUS model) toward flat-rate team/organization pricing. Implication: Validates Hermes's flat-rate tier strategy for smaller shops. (2) **Buildout Integration Ecosystem & Broker Distribution Network**: Buildout is dominant CRE broker platform with 50,000+ users; API integrations with CommercialEdge Network (10M monthly visitors, 100K+ qualified leads), marketplace partners (RI Marketplace, Brevitas, AnthemIQ). Strategic implication: Buildout is deal origination point (unlike Dealpath which is buyer evaluation stage), making it a higher-leverage partnership opportunity for Hermes to embed underwriting as next-layer feature in broker workflow. (3) **PropTech Funding Momentum (Q1 2026)**: $281M raised across 10 deals (9x increase from Q1 2025 $31M); February 2026 alone saw $1.04B across 38 transactions. Notable mega-rounds: Propy ($100M), Dwelly ($93M), Huspy ($59M). Implication: Competitive capital intensity is high; Hermes must establish broker distribution and viral loops within 6–12 months before well-funded competitors emerge. (4) **AI Regulatory Landscape Update (2026)**: 38 states enacted approximately 100 AI measures in 2025, many becoming enforceable in 2026. Colorado AI Act effective June 30, 2026 requires impact assessments and human-in-the-loop oversight for consequential decisions. CFPB/OCC/FDIC regulatory guidance now expects auditable, traceable AI outputs — "the model said so" is not acceptable justification. Implication: Regulatory compliance is now table stakes for institutional adoption; Hermes's emphasis on first-class provenance (every output traceable to source) directly addresses regulatory requirements and becomes competitive moat. |
