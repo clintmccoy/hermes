@@ -56,13 +56,18 @@ Adding one column to an existing table. Per `CLAUDE.md` Schema Change Protocol, 
   - Fire Trigger.dev `analysis-job` task with payload `{ analysis_job_id, deal_id, uploaded_file_ids: [...] }`.
   - Return `{ analysis_job_id }`.
 
-### 3.3 Storage webhook — deprecate for analyze path
+### 3.3 Storage webhook — neutralize to no-op stub
 
-Today `POST /api/webhooks/storage` fires an analysis job on every `uploaded_files` INSERT. That is the exact behavior the pitch says to replace. Proposed action:
+Today `POST /api/webhooks/storage` fires an analysis job on every `uploaded_files` INSERT. That is the exact behavior the pitch says to replace. **Decision (2026-04-22, resolves Q1 below): neutralize to a no-op stub; do not fully remove.**
 
-- **Remove the "fire analysis" behavior.** The webhook should still exist as a hook point (for future email-inbound flows to run pre-classification), but it must **not** create an `analysis_jobs` row anymore.
-- Until email inbound ships (future scope), the webhook becomes a no-op that just logs "received INSERT for uploaded_file X" and returns 200.
-- Tear down the Supabase dashboard webhook registration as part of the cutover so no request loss risk during deploy.
+Cutover action:
+
+- **Remove the "fire analysis" behavior.** The handler must no longer create an `analysis_jobs` row. All enqueue code paths deleted.
+- **Handler becomes a no-op stub.** On any POST it logs `[storage-webhook] received INSERT for uploaded_file X — no-op (see MMC-41)` and returns `200` (or `204`). No side effects. The log line's reference to MMC-41 exists so future maintainers understand the endpoint is an intentional documented deferral, not abandoned code.
+- **Supabase dashboard webhook registration stays in place.** URL and signing secret are preserved. Reason: email-inbound scope (deferred to Cycle 2+) is expected to re-use this auth path, and keeping it dormant avoids full Supabase reconfiguration at that time.
+- **Followup tracked in [MMC-41](https://linear.app/mccoymc/issue/MMC-41):** when the email-inbound scope begins, MMC-41 closes via one of two paths — reactivate (handler replumbed to email pipeline) or remove (handler + registration + secret fully deleted). Which path wins is a Cycle 2 pitch-level decision.
+
+**Tradeoff noted:** the cost of this approach is a dormant-but-reachable endpoint. MMC-41 exists so the deferral is audited, not silent. If email-inbound slips past Cycle 2, revisit whether the stub is still worth carrying.
 
 ### 3.4 Frontend
 
@@ -94,7 +99,7 @@ Gate contract (MMC-35 `GateReview`) stays the same — the review UI is unaware 
 
 ## 4. Open questions
 
-1. **Does the storage webhook get fully removed, or kept as a no-op stub?** Leaning stub to preserve the URL + secret for the future email-inbound scope. Need Clint's read on whether keeping dormant infrastructure is worth the clarity cost.
+1. ~~**Does the storage webhook get fully removed, or kept as a no-op stub?**~~ **Resolved 2026-04-22.** Decision: neutralize to no-op stub. Rationale: email-inbound scope (Cycle 2+) is expected to re-use the same URL + signing secret; keeping the endpoint dormant avoids Supabase reconfiguration work later. Tradeoff: carries a documented-but-reachable endpoint; audit trail tracked in [MMC-41](https://linear.app/mccoymc/issue/MMC-41), which forces a revisit when the email-inbound scope begins (reactivate or remove). If email-inbound slips past Cycle 2, the stub cost grows and we reconsider. Full implementation detail now in §3.3.
 2. **Upload UX when Analyze is already running** — should the upload zone be disabled while a job is `queued` or `running`, or allow new pending docs to queue up for a future Analyze click? Leaning allow-queueing; flag in-review.
 3. **Document-type classification placement** — does it run as a pre-step inside the Trigger.dev task, or as a separate step on upload completion? Either works. Will decide during implementation based on Claude API latency budget; decision must land in an ADR if it diverges from ADR-010.
 4. **Duplicate-detection re-use** — `uploaded_files` already has a `duplicate_of_id` column. Does the Analyze path exclude files where this is set? Assuming yes for now; confirm during impl.
