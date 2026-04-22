@@ -17,6 +17,7 @@ node_modules/
 out/
 dist/
 build/
+*.tsbuildinfo
 
 # Vercel
 .vercel
@@ -57,3 +58,8 @@ credentials/
 *.pem
 .eslintcache
 next-env.d.ts
+
+# Finder "Save As" duplicates — delete locally if they appear
+*\ 2.md
+*\ 2.tsx
+*\ 2.ts
