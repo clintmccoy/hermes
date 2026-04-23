@@ -16,6 +16,11 @@ Run this at the end of every session, without exception:
 - Link every ticket to its relevant commit(s) before closing.
 - Never end a session with Linear stale or inaccurate.
 
+## Ticket naming conventions
+
+- **Scope parent tickets** — title must start with `SCOPE: ` (e.g., `SCOPE: Deal intake — ingest → review → structured output`). This makes scope tickets scannable in the issue list and distinguishes them from implementation tickets.
+- **Implementation tickets** — no prefix required; use descriptive imperative titles referencing the scope in brackets (e.g., `API — POST /api/deals [cycle-1 deal-intake]`).
+
 ## Priority
 
 - **P1 Urgent** — production down, security breach, data loss, or users blocked from core functionality right now. Use sparingly.
