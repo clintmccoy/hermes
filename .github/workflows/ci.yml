@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 2   # enough history for push-event diffing
+          fetch-depth: 2 # enough history for push-event diffing
 
       - uses: dorny/paths-filter@v3
         id: filter
