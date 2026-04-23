@@ -862,6 +862,7 @@ export type Database = {
       deals: {
         Row: {
           asset_class: string
+          business_plan: string | null
           city: string | null
           country: string
           created_at: string
@@ -885,6 +886,7 @@ export type Database = {
         }
         Insert: {
           asset_class: string
+          business_plan?: string | null
           city?: string | null
           country?: string
           created_at?: string
@@ -908,6 +910,7 @@ export type Database = {
         }
         Update: {
           asset_class?: string
+          business_plan?: string | null
           city?: string | null
           country?: string
           created_at?: string
