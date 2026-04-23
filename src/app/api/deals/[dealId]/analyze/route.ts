@@ -48,11 +48,7 @@ import { tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 import type { Database } from "@/lib/supabase/database.types";
 import { analysisJobTask } from "@/trigger/analysis-job";
-import {
-  EXECUTOR_MODEL,
-  ADVISOR_MODEL,
-  type AnalysisJobPayload,
-} from "@/trigger/lib/types";
+import { EXECUTOR_MODEL, ADVISOR_MODEL, type AnalysisJobPayload } from "@/trigger/lib/types";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -285,7 +281,10 @@ export async function POST(
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error(`[deal-intake] Failed to trigger analysis-job task for job ${analysisJobId}:`, message);
+    console.error(
+      `[deal-intake] Failed to trigger analysis-job task for job ${analysisJobId}:`,
+      message,
+    );
 
     // Mark job failed — don't leave it in 'queued' with no worker picking it up.
     await db

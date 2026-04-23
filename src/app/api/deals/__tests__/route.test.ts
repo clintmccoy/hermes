@@ -39,7 +39,7 @@ const VALID_BODY = {
   name: "550 Madison Ave",
   asset_class: "office",
   business_plan: "acquire_lease_hold",
-  org_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",   // valid v4 UUID
+  org_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", // valid v4 UUID
   created_by: "b1ffcd00-ad1c-4f09-bc7e-7ccace491b22", // valid v4 UUID
 };
 
@@ -181,9 +181,7 @@ describe("POST /api/deals — route handler", () => {
 
     await POST(makeRequest({ ...VALID_BODY, org_id: specificOrgId }));
 
-    expect(mockInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ org_id: specificOrgId }),
-    );
+    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ org_id: specificOrgId }));
   });
 });
 
@@ -224,9 +222,7 @@ describe("POST /api/deals — RLS contract", () => {
 
     // Route must pass org_id through unchanged so the RLS policy can enforce
     // reads are scoped to the same org.
-    expect(mockInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ org_id: orgA }),
-    );
+    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ org_id: orgA }));
   });
 
   it("does NOT use OTHER_ORG_ID when org_id is set to orgA", async () => {
