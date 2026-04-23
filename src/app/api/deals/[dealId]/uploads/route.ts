@@ -43,8 +43,6 @@ import type { Database } from "@/lib/supabase/database.types";
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STORAGE_BUCKET = "deal-documents";
-/** Signed URL TTL: 1 hour. Client must PUT within this window. */
-const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60;
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 

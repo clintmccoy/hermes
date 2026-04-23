@@ -109,10 +109,7 @@ describe("POST /api/deals/[dealId]/uploads — Zod validation", () => {
   });
 
   it("returns 400 when uploaded_by is not a UUID", async () => {
-    const res = await POST(
-      makeRequest({ ...VALID_BODY, uploaded_by: "not-a-uuid" }),
-      makeParams(),
-    );
+    const res = await POST(makeRequest({ ...VALID_BODY, uploaded_by: "not-a-uuid" }), makeParams());
     expect(res.status).toBe(400);
     expect((await res.json()).issues).toEqual(
       expect.arrayContaining([expect.objectContaining({ path: ["uploaded_by"] })]),
@@ -218,7 +215,7 @@ describe("POST /api/deals/[dealId]/uploads — route handler", () => {
     await POST(makeRequest(VALID_BODY), makeParams());
 
     // The insert must use org_id derived from the deal lookup
-    const insertedPayload = (mockInsert.mock.calls as any)[0][0] as Record<string, unknown>;
+    const insertedPayload = mockInsert.mock.calls[0][0] as unknown as Record<string, unknown>;
     expect(insertedPayload.org_id).toBe(ORG_ID);
   });
 
@@ -227,7 +224,7 @@ describe("POST /api/deals/[dealId]/uploads — route handler", () => {
 
     await POST(makeRequest(VALID_BODY), makeParams());
 
-    const insertedPayload = (mockInsert.mock.calls as any)[0][0] as Record<string, unknown>;
+    const insertedPayload = mockInsert.mock.calls[0][0] as unknown as Record<string, unknown>;
     expect(insertedPayload).toMatchObject({
       org_id: ORG_ID,
       deal_id: DEAL_ID,
@@ -246,12 +243,12 @@ describe("POST /api/deals/[dealId]/uploads — route handler", () => {
 
     await POST(makeRequest(VALID_BODY), makeParams());
 
-    const storagePath = (mockCreateSignedUploadUrl.mock.calls as any)[0][0] as string;
+    const storagePath = mockCreateSignedUploadUrl.mock.calls[0][0] as unknown as string;
     expect(storagePath).toMatch(new RegExp(`^${ORG_ID}/${DEAL_ID}/[^/]+/offering-memo\\.pdf$`));
 
     // The file ID in the path must match the one returned in the response
     // (tested indirectly via the insert payload having the same id as the path segment)
-    const insertedPayload = (mockInsert.mock.calls as any)[0][0] as Record<string, unknown>;
+    const insertedPayload = mockInsert.mock.calls[0][0] as unknown as Record<string, unknown>;
     const fileId = insertedPayload.id as string;
     expect(storagePath).toContain(fileId);
     expect(insertedPayload.storage_path).toBe(storagePath);
@@ -262,8 +259,8 @@ describe("POST /api/deals/[dealId]/uploads — route handler", () => {
 
     await POST(makeRequest(VALID_BODY), makeParams());
 
-    const storagePath = (mockCreateSignedUploadUrl.mock.calls as any)[0][0] as string;
-    const insertedPayload = (mockInsert.mock.calls as any)[0][0] as Record<string, unknown>;
+    const storagePath = mockCreateSignedUploadUrl.mock.calls[0][0] as unknown as string;
+    const insertedPayload = mockInsert.mock.calls[0][0] as unknown as Record<string, unknown>;
     expect(insertedPayload.storage_path).toBe(storagePath);
   });
 
