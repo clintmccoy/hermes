@@ -11,47 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ── Path filter ──────────────────────────────────────────────────────────────
-  # Detects which categories of files changed so downstream jobs can skip
-  # themselves on docs-only PRs, satisfying required status checks instantly
-  # rather than waiting on runner-queue availability.
-  #
-  # GitHub treats a skipped job as "passing" for branch-protection purposes,
-  # so docs-only PRs get a green check in ~10 s with no runner cost.
-  filter:
-    name: Detect changed paths
-    runs-on: ubuntu-latest
-    outputs:
-      code: ${{ steps.filter.outputs.code }}
-      migrations: ${{ steps.filter.outputs.migrations }}
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 2 # enough history for push-event diffing
-
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            # True when any non-docs file changed (triggers full CI suite).
-            # Negation patterns exclude docs-only files; everything else is code.
-            code:
-              - '**'
-              - '!**.md'
-              - '!docs/**'
-              - '!CLAUDE.md'
-              - '!.gitignore'
-              - '!LICENSE*'
-            # True only when migration files changed (triggers smoke test).
-            migrations:
-              - 'supabase/migrations/**'
-
-  # ── Main CI ──────────────────────────────────────────────────────────────────
   ci:
     name: Type check · Lint · Test · Build
-    needs: filter
-    if: needs.filter.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -94,10 +55,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   # ── Migration smoke test ───────────────────────────────────────────────────
-  # Runs on PRs that touch supabase/migrations/**. Installs the Supabase CLI,
-  # links to the project, and applies pending migrations to the preview branch
+  # Runs on every PR. Installs the Supabase CLI, links to the project, and
+  # applies any pending migrations to the Supabase preview branch that was
   # provisioned by the Supabase GitHub App when the PR was opened.
-  # Skipped automatically on PRs with no migration changes.
+  # If any migration fails to apply, this job fails and blocks the merge.
   #
   # Branch lifecycle (automatic — no manual steps required):
   #   PR opened/updated → Supabase GitHub App provisions preview branch
@@ -106,10 +67,9 @@ jobs:
 
   migration-smoke-test:
     name: Migration smoke test
-    needs: filter
-    if: github.event_name == 'pull_request' && needs.filter.outputs.migrations == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout
