@@ -15,9 +15,14 @@ Adapted Shape Up. 6 weeks on, 2 weeks cool-down. Fixed time, variable scope — 
 
 ## Source-of-truth split
 
-- **Notion** — pitches, bets, cycle narrative.
+- **Notion** — pitches, bets, cycle narrative, raw daily research log.
 - **Linear** — execution (tickets, cycles). Ticket prefix: `MMC-`.
-- **Repo** — code, ADRs, scope specs, workflow docs.
+- **Repo** — code, ADRs, scope specs, workflow docs, curated research synthesis.
+
+## Research locations
+
+- **Raw daily research** → Notion: [Autonomous Research Log](https://www.notion.so/c0dd97723d414c999e4a706773282636) (one page per scheduled task run; auto-generated; time-ordered).
+- **Curated synthesis** → `docs/RESEARCH.md` in the repo (hand-edited; updated when a finding is worth keeping permanently; never auto-appended).
 
 ## Load-on-demand protocols
 
