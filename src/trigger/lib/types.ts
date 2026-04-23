@@ -38,8 +38,8 @@ export const ADVISOR_MODEL = "claude-opus-4-6" as const;
 export interface AnalysisJobPayload {
   /** The analysis_jobs.id created by the API before triggering this job. */
   jobId: string;
-  /** Supabase uploaded_files.id of the document to process. */
-  uploadedFileId: string;
+  /** Supabase uploaded_files.ids to process — all pending docs for this deal. */
+  uploadedFileIds: string[];
   /** The deal this analysis belongs to. */
   dealId: string;
   /** The org this analysis belongs to. */
@@ -140,6 +140,7 @@ export interface ModelSummaryItem {
  * change per org or analysis depth.
  */
 export type AgentEventType =
+  | "analysis_kicked_off"
   | "job.started"
   | "ingestion.started"
   | "ingestion.completed"

@@ -16,7 +16,10 @@ const eslintConfig = [
       // Enforce explicit return types on functions — important for a financial calc engine
       "@typescript-eslint/explicit-function-return-type": "off", // Too noisy for React components; enable for lib/ only
       // No unused variables
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
       // No any — financial logic must be typed
       "@typescript-eslint/no-explicit-any": "error",
       // Consistent imports
