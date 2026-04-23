@@ -116,7 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // ── 5. Trigger the Trigger.dev task ───────────────────────────────────────
   const taskPayload: AnalysisJobPayload = {
     jobId: job.id,
-    uploadedFileId: file.id,
+    uploadedFileIds: [file.id], // single-file wrapped in array (MMC-49 payload shape)
     dealId: file.deal_id,
     orgId: file.org_id,
     userId: file.uploaded_by,

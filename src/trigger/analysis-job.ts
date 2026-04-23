@@ -64,7 +64,7 @@ export const analysisJobTask = task({
   retry: { maxAttempts: 1 },
 
   run: async (payload: AnalysisJobPayload): Promise<void> => {
-    const { jobId, uploadedFileId, dealId, orgId, userId, analysisDepth } = payload;
+    const { jobId, uploadedFileIds, dealId, orgId, userId, analysisDepth } = payload;
 
     const db = getSupabaseAdmin();
     const sequencer = new EventSequencer();
@@ -82,7 +82,8 @@ export const analysisJobTask = task({
       .eq("id", jobId);
 
     await emitEvent(jobId, sequencer, "job.started", {
-      uploadedFileId,
+      uploadedFileIds,
+      fileCount: uploadedFileIds.length,
       dealId,
       analysisDepth,
       executorModel: EXECUTOR_MODEL,
@@ -104,9 +105,11 @@ export const analysisJobTask = task({
 
     try {
       // ── STEP 1: Document ingestion ──────────────────────────────────────────
+      // TODO(MMC-50): iterate over uploadedFileIds[] once multi-file executor lands.
+      // For now, process the first file only — payload shape is already correct.
       const ingestionResult = await documentIngestionTask.triggerAndWait({
         jobId,
-        uploadedFileId,
+        uploadedFileId: uploadedFileIds[0],
         dealId,
         orgId,
         startingSequence: sequencer.current(),
