@@ -145,6 +145,7 @@ export type AgentEventType =
   | "ingestion.started"
   | "ingestion.completed"
   | "ingestion.partial_failure"
+  | "classification.completed"
   | "extraction.started"
   | "extraction.advisor_invoked"
   | "extraction.completed"

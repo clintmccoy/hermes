@@ -43,6 +43,7 @@ import {
   type ExtractionSummaryItem,
   type ModelSummaryItem,
 } from "./lib/types";
+import type { DocumentRefInput } from "./subtasks/extraction";
 
 // Gate timeout: 48 hours. After this, the job is cancelled and no credits deducted.
 const GATE_TIMEOUT_SECONDS = 48 * 60 * 60;
@@ -104,31 +105,62 @@ export const analysisJobTask = task({
     };
 
     try {
-      // ── STEP 1: Document ingestion ──────────────────────────────────────────
-      // TODO(MMC-50): iterate over uploadedFileIds[] once multi-file executor lands.
-      // For now, process the first file only — payload shape is already correct.
-      const ingestionResult = await documentIngestionTask.triggerAndWait({
-        jobId,
-        uploadedFileId: uploadedFileIds[0],
-        dealId,
-        orgId,
-        startingSequence: sequencer.current(),
-      });
+      // ── STEP 1: Document ingestion (all files, sequential) ─────────────────
+      // Each file gets its own document-ingestion subtask run; results are
+      // collected into ingestedRefs[] for the classification pre-step and
+      // extraction below. Sequential (not parallel) to keep event sequencing
+      // deterministic and avoid Storage write contention on the raw extraction
+      // JSON for the same job prefix.
+      const ingestedRefs: Array<{
+        documentRefId: string;
+        rawExtractionStoragePath: string;
+      }> = [];
 
-      if (!ingestionResult.ok) {
-        throw new Error(`document-ingestion subtask failed: ${ingestionResult.error}`);
+      for (const uploadedFileId of uploadedFileIds) {
+        const ingestionResult = await documentIngestionTask.triggerAndWait({
+          jobId,
+          uploadedFileId,
+          dealId,
+          orgId,
+          startingSequence: sequencer.current(),
+        });
+
+        if (!ingestionResult.ok) {
+          throw new Error(
+            `document-ingestion subtask failed for file ${uploadedFileId}: ${ingestionResult.error}`,
+          );
+        }
+
+        ingestedRefs.push({
+          documentRefId: ingestionResult.output.documentRefId,
+          rawExtractionStoragePath: ingestionResult.output.rawExtractionStoragePath,
+        });
+
+        // Advance past events emitted by this subtask (up to 3: started, optional
+        // partial_failure, completed).
+        advanceSequencer(sequencer, 3);
       }
 
-      // Advance orchestrator sequencer past subtask events
-      advanceSequencer(sequencer, 3); // ingestion emits up to 3 events
+      // ── CLASSIFICATION PRE-STEP ─────────────────────────────────────────────
+      // Read the document types inferred during ingestion (filename heuristics).
+      // Runs across the full set before extraction begins so the extraction
+      // agent receives typed, labelled documents.
+      //
+      // Classification is an in-task pre-step, consistent with ADR-010 Decision 3
+      // (single orchestrating agent). No separate subtask or ADR deviation.
+      const documentRefs = await resolveDocumentTypes(db, ingestedRefs);
+
+      await emitEvent(jobId, sequencer, "classification.completed", {
+        documentCount: documentRefs.length,
+        types: documentRefs.map((d) => ({ refId: d.id, documentType: d.documentType })),
+      });
 
       // ── STEP 2: Extraction ─────────────────────────────────────────────────
       const extractionResult = await extractionTask.triggerAndWait({
         jobId,
         dealId,
         orgId,
-        documentRefId: ingestionResult.output.documentRefId,
-        rawExtractionStoragePath: ingestionResult.output.rawExtractionStoragePath,
+        documentRefs,
         analysisDepth,
         startingSequence: sequencer.current(),
         currentAdvisorInvocationCount: provenance.advisorInvocationCount,
@@ -608,4 +640,36 @@ function creditCostForDepth(depth: string): number {
     strategic_mix: 25,
   };
   return costs[depth] ?? 3;
+}
+
+/**
+ * Resolve document types for all ingested refs from the document_refs table.
+ *
+ * Document types are inferred from filenames during the ingestion subtask and
+ * written to document_refs.document_type. This function reads them back so the
+ * classification pre-step can emit a single event with the full typed set and
+ * pass labelled refs into the extraction agent.
+ *
+ * If a document_refs row can't be found (shouldn't happen post-ingestion but
+ * defensive), it falls back to 'other' so extraction proceeds rather than
+ * failing the whole job.
+ */
+async function resolveDocumentTypes(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  ingestedRefs: Array<{ documentRefId: string; rawExtractionStoragePath: string }>,
+): Promise<DocumentRefInput[]> {
+  const refIds = ingestedRefs.map((r) => r.documentRefId);
+
+  const { data: docRefs } = await db
+    .from("document_refs")
+    .select("id, document_type")
+    .in("id", refIds);
+
+  const typeByRefId = new Map((docRefs ?? []).map((r) => [r.id, r.document_type as string]));
+
+  return ingestedRefs.map((ref) => ({
+    id: ref.documentRefId,
+    documentType: typeByRefId.get(ref.documentRefId) ?? "other",
+    rawExtractionStoragePath: ref.rawExtractionStoragePath,
+  }));
 }

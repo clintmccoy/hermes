@@ -23,12 +23,26 @@ import { getSupabaseAdmin, emitEvent, EventSequencer } from "../lib/events";
 import { createAdvisorState, runWithAdvisor, type AdvisorState } from "../lib/advisor";
 import { EXECUTOR_MODEL, type AnalysisDepth, type ExtractionResult } from "../lib/types";
 
+export interface DocumentRefInput {
+  /** document_refs.id for this document. */
+  id: string;
+  /** Classifier-confirmed document type (e.g. 'offering_memorandum', 'rent_roll', 't12'). */
+  documentType: string;
+  /** Supabase Storage path of the raw Document AI extraction JSON for this doc. */
+  rawExtractionStoragePath: string;
+}
+
 export interface ExtractionPayload {
   jobId: string;
   dealId: string;
   orgId: string;
-  documentRefId: string;
-  rawExtractionStoragePath: string;
+  /**
+   * All document refs to process as a batch.
+   * Replaces the former single documentRefId + rawExtractionStoragePath fields.
+   * Each entry maps to one ingested document; the extraction agent receives
+   * all docs together so cross-document context is available (MMC-50).
+   */
+  documentRefs: DocumentRefInput[];
   analysisDepth: AnalysisDepth;
   startingSequence: number;
   /** Carry advisor state in from orchestrator for global cap enforcement. */
@@ -40,6 +54,12 @@ export interface ExtractionPayload {
 // ── Structured extraction schema ────────────────────────────────────────────
 
 interface ExtractedField {
+  /**
+   * document_refs.id that this field was sourced from.
+   * Required — the extraction tool schema enforces this so the model must
+   * always attribute each field to a specific source document.
+   */
+  source_document_ref_id: string;
   field_name: string;
   extracted_value: unknown;
   confidence_score: number | null; // 0.0–1.0
@@ -58,9 +78,11 @@ interface ExtractionToolInput {
 const EXTRACTION_TOOL: Anthropic.Tool = {
   name: "submit_extracted_fields",
   description:
-    "Submit all extracted CRE financial fields from the document. " +
+    "Submit all extracted CRE financial fields from the document set. " +
     "Set needs_advisor=true on any field where you are uncertain or where " +
-    "the structure is novel (flex leases, management agreements, STR revenue, etc.).",
+    "the structure is novel (flex leases, management agreements, STR revenue, etc.). " +
+    "Always set source_document_ref_id to the document ref ID provided in the prompt " +
+    "for the document this field was sourced from.",
   input_schema: {
     type: "object" as const,
     properties: {
@@ -69,6 +91,12 @@ const EXTRACTION_TOOL: Anthropic.Tool = {
         items: {
           type: "object",
           properties: {
+            source_document_ref_id: {
+              type: "string",
+              description:
+                "The document_refs.id of the document this field was sourced from. " +
+                "Must match one of the ref IDs listed in the document context.",
+            },
             field_name: { type: "string" },
             extracted_value: {},
             confidence_score: { type: "number", minimum: 0, maximum: 1 },
@@ -78,7 +106,7 @@ const EXTRACTION_TOOL: Anthropic.Tool = {
             advisor_invoked: { type: "boolean" },
             needs_advisor: { type: "boolean" },
           },
-          required: ["field_name", "extracted_value", "needs_advisor"],
+          required: ["source_document_ref_id", "field_name", "extracted_value", "needs_advisor"],
         },
       },
       extraction_notes: {
@@ -97,15 +125,7 @@ export const extractionTask = task({
   retry: { maxAttempts: 2 },
 
   run: async (payload: ExtractionPayload): Promise<ExtractionResult> => {
-    const {
-      jobId,
-      dealId,
-      orgId,
-      documentRefId,
-      rawExtractionStoragePath,
-      analysisDepth,
-      startingSequence,
-    } = payload;
+    const { jobId, dealId, orgId, documentRefs, analysisDepth, startingSequence } = payload;
 
     const db = getSupabaseAdmin();
     const sequencer = new EventSequencer();
@@ -117,22 +137,45 @@ export const extractionTask = task({
     advisorState.advisorTokensUsed = payload.currentAdvisorTokensUsed;
     advisorState.executorTokensUsed = payload.currentExecutorTokensUsed;
 
-    await emitEvent(jobId, sequencer, "extraction.started", { documentRefId });
+    const docRefIds = documentRefs.map((d) => d.id);
+    await emitEvent(jobId, sequencer, "extraction.started", {
+      documentRefIds: docRefIds,
+      documentCount: documentRefs.length,
+    });
 
-    // ── 1. Fetch raw extraction from Storage ─────────────────────────────────
-    const { data: rawBlob, error: fetchError } = await db.storage
-      .from("deal-documents")
-      .download(rawExtractionStoragePath);
+    // ── 1. Fetch all raw extractions from Storage ────────────────────────────
+    const fetchedDocs: Array<{
+      refId: string;
+      documentType: string;
+      rawExtraction: {
+        pages: Array<{ pageNumber: number; fullText: string; tables: Array<{ rows: string[][] }> }>;
+      };
+    }> = [];
 
-    if (fetchError || !rawBlob) {
-      throw new Error(`Failed to fetch raw extraction from storage: ${fetchError?.message}`);
+    for (const ref of documentRefs) {
+      const { data: rawBlob, error: fetchError } = await db.storage
+        .from("deal-documents")
+        .download(ref.rawExtractionStoragePath);
+
+      if (fetchError || !rawBlob) {
+        throw new Error(
+          `Failed to fetch raw extraction for doc ${ref.id} from storage: ${fetchError?.message}`,
+        );
+      }
+
+      const rawExtractionJson = await rawBlob.text();
+      fetchedDocs.push({
+        refId: ref.id,
+        documentType: ref.documentType,
+        rawExtraction: JSON.parse(rawExtractionJson),
+      });
     }
 
-    const rawExtractionJson = await rawBlob.text();
-    const rawExtraction = JSON.parse(rawExtractionJson);
-
-    // ── 2. Prepare extraction context for executor ────────────────────────────
-    const documentText = buildDocumentContext(rawExtraction);
+    // ── 2. Build combined document context for executor ──────────────────────
+    // All documents are concatenated with clear section headers so the model
+    // knows which ref ID corresponds to each document — required for
+    // source_document_ref_id attribution on each extracted field.
+    const documentText = buildCombinedDocumentContext(fetchedDocs);
 
     // ── 3. Run executor (first pass) ─────────────────────────────────────────
     const systemPrompt = buildExtractionSystemPrompt(analysisDepth);
@@ -204,14 +247,17 @@ export const extractionTask = task({
 
     // ── 6. Write extracted_inputs rows ────────────────────────────────────────
     // Filter out fields with null/undefined extracted_value — the schema requires NOT NULL.
-    // These represent fields the model couldn't find in the document.
+    // These represent fields the model couldn't find in any document.
+    // source_document_ref_id comes from the per-field attribution the model provided;
+    // fall back to the first doc ref if the model omitted it (defensive).
+    const fallbackRefId = documentRefs[0]?.id ?? "";
     const inputsToInsert = extracted.fields
       .filter((field) => field.extracted_value !== null && field.extracted_value !== undefined)
       .map((field) => ({
         analysis_job_id: jobId,
         deal_id: dealId,
         org_id: orgId,
-        source_document_ref_id: documentRefId,
+        source_document_ref_id: field.source_document_ref_id || fallbackRefId,
         field_name: field.field_name,
         extracted_value: field.extracted_value as Awaited<ReturnType<typeof db.from>>["data"],
         extraction_model: EXECUTOR_MODEL,
@@ -230,6 +276,7 @@ export const extractionTask = task({
 
     await emitEvent(jobId, sequencer, "extraction.completed", {
       inputsExtracted: inputsToInsert.length,
+      documentCount: documentRefs.length,
       advisorInvocationCount: advisorState.invocationCount,
       executorTokensUsed: advisorState.executorTokensUsed,
       advisorTokensUsed: advisorState.advisorTokensUsed,
@@ -254,6 +301,10 @@ with every financial input you can identify.
 
 Analysis depth: ${depth}
 
+You will receive one or more documents, each clearly labeled with its document type and ref_id.
+For each extracted field you MUST set source_document_ref_id to the ref_id of the document
+the value was sourced from. This attribution is required for provenance — never omit it.
+
 Fields to extract (extract all that are present):
 - Property: name, address, asset_class, gross_sf, rentable_sf, year_built, year_renovated
 - Revenue: total_revenue, effective_gross_income, base_rent_per_sf, occupancy_pct
@@ -268,31 +319,57 @@ Rules:
 - Set confidence_score 0.6–0.89 for calculated or inferred values
 - Set confidence_score 0.0–0.59 for estimated or assumed values
 - Set needs_advisor=true for any unusual structure, missing critical field, or ambiguous value
-- NEVER invent values. If a field is not present, omit it rather than guessing.
+- NEVER invent values. If a field is not present in any document, omit it rather than guessing.
+- When the same field appears in multiple documents, use the highest-confidence value and note
+  the discrepancy in extraction_notes.
 - Always capture source_page_number and source_text_excerpt for audit trail.`;
 }
 
-function buildDocumentContext(rawExtraction: {
-  pages: Array<{ pageNumber: number; fullText: string; tables: Array<{ rows: string[][] }> }>;
-}): string {
+/**
+ * Build a combined document context string from multiple ingested documents.
+ *
+ * Each document gets a clearly labeled section header with its ref_id and
+ * document type so the extraction model can correctly attribute each
+ * extracted field to its source document via source_document_ref_id.
+ */
+function buildCombinedDocumentContext(
+  documents: Array<{
+    refId: string;
+    documentType: string;
+    rawExtraction: {
+      pages: Array<{ pageNumber: number; fullText: string; tables: Array<{ rows: string[][] }> }>;
+    };
+  }>,
+): string {
   const parts: string[] = [];
 
-  for (const page of rawExtraction.pages) {
-    parts.push(`\n--- PAGE ${page.pageNumber} ---`);
+  for (const doc of documents) {
+    parts.push(
+      `\n${"=".repeat(60)}`,
+      `DOCUMENT TYPE: ${doc.documentType}`,
+      `REF ID: ${doc.refId}`,
+      `${"=".repeat(60)}`,
+    );
 
-    if (page.fullText.trim()) {
-      parts.push(page.fullText);
-    }
+    for (const page of doc.rawExtraction.pages) {
+      parts.push(`\n--- PAGE ${page.pageNumber} ---`);
 
-    for (const table of page.tables) {
-      if (table.rows.length > 0) {
-        parts.push("\n[TABLE]");
-        for (const row of table.rows) {
-          parts.push(row.join(" | "));
+      if (page.fullText.trim()) {
+        parts.push(page.fullText);
+      }
+
+      for (const table of page.tables) {
+        if (table.rows.length > 0) {
+          parts.push("\n[TABLE]");
+          for (const row of table.rows) {
+            parts.push(row.join(" | "));
+          }
+          parts.push("[/TABLE]");
         }
-        parts.push("[/TABLE]");
       }
     }
+
+    parts.push(`\n${"=".repeat(60)}`, `END OF DOCUMENT ${doc.refId}`, `${"=".repeat(60)}\n`);
   }
 
   return parts.join("\n");
