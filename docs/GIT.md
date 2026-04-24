@@ -116,6 +116,12 @@ do shell script "source ~/.zshenv && echo TOKEN_LEN=${#GITHUB_TOKEN} && gh auth 
 
 If `TOKEN_LEN` is 0, the token isn't loading. Check `~/.zshenv` exists and contains `export GITHUB_TOKEN=...`.
 
+### ⚠️ GIT_INDEX_FILE + osascript mismatch — known footgun
+
+The sandbox workaround for stale locks uses `GIT_INDEX_FILE=/tmp/hermes-index` to bypass `.git/index`. This writes objects to the repo but does **not** update the real `.git/index` on disk. If you then run a subsequent `git add` / `git commit` via `osascript` (which uses the real index), git will diff against the previous HEAD and generate a commit that **deletes** everything the sandbox staged.
+
+**Rule:** once you use `GIT_INDEX_FILE` in the sandbox for a commit, do all follow-on commits for that branch via `osascript` using `git reset --mixed <good-sha>` first to re-sync the real index, then `git add` + `git commit` normally.
+
 ---
 
 ## Stale lock recovery
