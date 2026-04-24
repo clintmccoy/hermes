@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none">
+  <rect width="40" height="40" rx="6" fill="#0C0F14"></rect>
+  <path d="M10 10 L10 30 M10 20 L22 20 M22 10 L22 30" stroke="#C3702A" stroke-width="2.5" stroke-linecap="square"></path>
+  <circle cx="28" cy="20" r="2" fill="#C3702A"></circle>
+  <text x="52" y="27" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="22" letter-spacing="-0.02em" fill="#0C0F14">hermes</text>
+</svg>
