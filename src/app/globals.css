@@ -1,3 +1,5 @@
+/* JetBrains Mono — code, field names, IDs (CDN) — must precede @import "tailwindcss" */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 /* ============================================================================
@@ -6,9 +8,6 @@
    ============================================================================ */
 
 /* ---- Fonts ---------------------------------------------------------------- */
-
-/* JetBrains Mono — code, field names, IDs (CDN) */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* Instrument Sans — display & headings */
 @font-face {

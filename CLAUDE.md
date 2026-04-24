@@ -4,7 +4,7 @@
 
 Before anything else:
 
-1. `git status` and `git log --oneline -10`.
+1. `rm -f .git/index.lock` — clear any stale lock left by the previous sandbox session, then `git status` and `git log --oneline -10`.
 2. Check Linear for open/in-progress tickets in the current cycle.
 3. Confirm the session goal with Clint before writing code.
 4. First session of a new cycle: re-read `/docs/WORKFLOW.md` and the current bet page in Notion.
