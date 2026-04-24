@@ -1,1 +1,464 @@
 @import "tailwindcss";
+
+/* ============================================================================
+   Hermes Design System — Global Tokens & Base Styles
+   MMC-57: Design system foundation
+   ============================================================================ */
+
+/* ---- Fonts ---------------------------------------------------------------- */
+
+/* JetBrains Mono — code, field names, IDs (CDN) */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+/* Instrument Sans — display & headings */
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/fonts/InstrumentSans-VariableFont_wdth_wght.ttf") format("truetype-variations");
+  font-weight: 400 700;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/fonts/InstrumentSans-Italic-VariableFont_wdth_wght.ttf") format("truetype-variations");
+  font-weight: 400 700;
+  font-stretch: 75% 125%;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Geist — UI body, data, tabular numerals */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Inter — alternate UI face */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* DM Sans — alternate editorial face */
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/DMSans-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/DMSans-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Plus Jakarta Sans — alternate */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Schibsted Grotesk — alternate display */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/fonts/SchibstedGrotesk-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/fonts/SchibstedGrotesk-Italic-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Sora — alternate geometric sans */
+@font-face {
+  font-family: "Sora";
+  src: url("/fonts/Sora-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Tailwind v4 theme registration -------------------------------------- */
+
+@theme inline {
+  /* Font families */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Instrument Sans", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "DM Sans", "Instrument Sans", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Border radii */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Spacing */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* Amber palette */
+  --color-amber-50: #fbebd4;
+  --color-amber-100: #f4d09c;
+  --color-amber-200: #ecae62;
+  --color-amber-300: #e08936;
+  --color-amber-400: #d0731e;
+  --color-amber-500: #b15e18;
+  --color-amber-600: #8b4712;
+  --color-amber-700: #5e2f0b;
+
+  /* Semantic colors — dark (default) */
+  --color-surface-0: #0c0f14;
+  --color-surface-1: #141821;
+  --color-surface-2: #1a1f2a;
+  --color-surface-3: #222836;
+  --color-fg-1: #f5f2ec;
+  --color-fg-2: #b6b0a4;
+  --color-fg-3: #7c7668;
+  --color-border: #1f2430;
+  --color-border-strong: #2b3242;
+  --color-positive: #4aad6f;
+  --color-caution: #d4a32e;
+  --color-critical: #d84a29;
+  --color-info: #6b8cb5;
+
+  /* Data viz */
+  --color-viz-1: #e6862b;
+  --color-viz-2: #4a90d9;
+  --color-viz-3: #4aad6f;
+  --color-viz-4: #a576d8;
+  --color-viz-5: #2db5b5;
+  --color-viz-6: #e9c547;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-med: 180ms;
+  --duration-slow: 240ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ---- CSS custom properties (runtime — both themes) ----------------------- */
+
+:root,
+.theme-dark {
+  /* Surfaces — dark (default) */
+  --surface-0: #0c0f14;
+  --surface-1: #141821;
+  --surface-2: #1a1f2a;
+  --surface-3: #222836;
+  --surface-inset: #0a0d12;
+  --scrim: rgba(0, 0, 0, 0.56);
+
+  /* Foregrounds */
+  --fg-1: #f5f2ec;
+  --fg-2: #b6b0a4;
+  --fg-3: #7c7668;
+  --fg-inverse: #0c0f14;
+
+  /* Borders */
+  --border: #1f2430;
+  --border-strong: #2b3242;
+  --border-focus: rgba(195, 112, 42, 0.6);
+
+  /* Amber accent */
+  --amber-50: #fbebd4;
+  --amber-100: #f4d09c;
+  --amber-200: #ecae62;
+  --amber-300: #e08936;
+  --amber-400: #d0731e;
+  --amber-500: #b15e18;
+  --amber-600: #8b4712;
+  --amber-700: #5e2f0b;
+  --amber-tint: rgba(208, 115, 30, 0.12);
+
+  --accent: var(--amber-400);
+  --accent-hover: var(--amber-300);
+  --accent-press: var(--amber-500);
+  --accent-tint: var(--amber-tint);
+  --accent-fg: #ffffff;
+
+  /* Semantic */
+  --positive: #4aad6f;
+  --positive-tint: rgba(74, 173, 111, 0.16);
+  --caution: #d4a32e;
+  --caution-tint: rgba(212, 163, 46, 0.18);
+  --critical: #d84a29;
+  --critical-tint: rgba(216, 74, 41, 0.18);
+  --info: #6b8cb5;
+  --info-tint: rgba(107, 140, 181, 0.18);
+
+  /* Data viz */
+  --viz-1: #e6862b;
+  --viz-2: #4a90d9;
+  --viz-3: #4aad6f;
+  --viz-4: #a576d8;
+  --viz-5: #2db5b5;
+  --viz-6: #e9c547;
+
+  /* Shadows */
+  --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.28), 0 1px 2px rgba(0, 0, 0, 0.14);
+  --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.42), 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.theme-light {
+  --surface-0: #f7f5f0;
+  --surface-1: #ffffff;
+  --surface-2: #faf8f3;
+  --surface-3: #f0ede5;
+  --surface-inset: #edeae1;
+  --scrim: rgba(20, 15, 8, 0.32);
+
+  --fg-1: #15181e;
+  --fg-2: #5a5448;
+  --fg-3: #8c8574;
+  --fg-inverse: #ffffff;
+
+  --border: #e4dfd4;
+  --border-strong: #cfc8b8;
+  --border-focus: rgba(195, 112, 42, 0.6);
+
+  --amber-tint: rgba(195, 112, 42, 0.08);
+  --accent: var(--amber-500);
+  --accent-hover: var(--amber-600);
+  --accent-press: var(--amber-700);
+  --accent-tint: var(--amber-tint);
+  --accent-fg: #ffffff;
+
+  --positive: #357a50;
+  --positive-tint: rgba(53, 122, 80, 0.1);
+  --caution: #a07828;
+  --caution-tint: rgba(160, 120, 40, 0.12);
+  --critical: #9f3722;
+  --critical-tint: rgba(159, 55, 34, 0.1);
+  --info: #4a6278;
+  --info-tint: rgba(74, 98, 120, 0.1);
+
+  --shadow-1: 0 4px 12px rgba(20, 15, 8, 0.1), 0 1px 2px rgba(20, 15, 8, 0.06);
+  --shadow-2: 0 16px 48px rgba(20, 15, 8, 0.14), 0 4px 12px rgba(20, 15, 8, 0.08);
+}
+
+/* ---- Radii, spacing, motion ---------------------------------------------- */
+
+:root {
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --dur-fast: 120ms;
+  --dur-med: 180ms;
+  --dur-slow: 240ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Instrument Sans", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "DM Sans", "Instrument Sans", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---- Base ----------------------------------------------------------------- */
+
+html,
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 450;
+  color: var(--fg-1);
+  background: var(--surface-0);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Type scale ---------------------------------------------------------- */
+
+.t-display,
+h1.display {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 54px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--fg-1);
+}
+
+.t-h1,
+h1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 500;
+  letter-spacing: -0.018em;
+  color: var(--fg-1);
+}
+
+.t-h2,
+h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  color: var(--fg-1);
+}
+
+.t-h3,
+h3 {
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+
+.t-body,
+p {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 450;
+  color: var(--fg-1);
+}
+
+.t-body-sm {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.t-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--fg-2);
+}
+
+.t-eyebrow {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.t-mono,
+code {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.t-mono {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.t-mono-sm {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.t-num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings:
+    "tnum" 1,
+    "lnum" 1;
+}
+
+/* ---- Color helpers ------------------------------------------------------- */
+
+.fg-1 {
+  color: var(--fg-1);
+}
+.fg-2 {
+  color: var(--fg-2);
+}
+.fg-3 {
+  color: var(--fg-3);
+}
+.fg-accent {
+  color: var(--accent);
+}
+.fg-positive {
+  color: var(--positive);
+}
+.fg-caution {
+  color: var(--caution);
+}
+.fg-critical {
+  color: var(--critical);
+}
+
+.bg-surface-0 {
+  background: var(--surface-0);
+}
+.bg-surface-1 {
+  background: var(--surface-1);
+}
+.bg-surface-2 {
+  background: var(--surface-2);
+}
+
+.border-hair {
+  border: 1px solid var(--border);
+}
