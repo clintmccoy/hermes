@@ -44,7 +44,7 @@ interface FieldErrors {
 const ASSET_CLASS_OPTIONS: { value: AssetClass; label: string }[] = [
   { value: "office", label: "Office" },
   { value: "industrial", label: "Industrial" },
-  { value: "multifamily", label: "Apartments / Multifamily" },
+  { value: "multifamily", label: "Multifamily" },
   { value: "retail", label: "Retail" },
 ];
 

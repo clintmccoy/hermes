@@ -28,7 +28,7 @@ const ASSET_CLASS_LABELS: Record<string, string> = {
   office: "Office",
   industrial: "Industrial",
   retail: "Retail",
-  multifamily: "Apartments / Multifamily",
+  multifamily: "Multifamily",
 };
 
 const BUSINESS_PLAN_LABELS: Record<string, string> = {
