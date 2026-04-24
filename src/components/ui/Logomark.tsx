@@ -4,11 +4,7 @@ interface LogomarkProps {
   className?: string;
 }
 
-export function Logomark({
-  size = 18,
-  color = "var(--accent)",
-  className,
-}: LogomarkProps) {
+export function Logomark({ size = 18, color = "var(--accent)", className }: LogomarkProps) {
   return (
     <svg
       width={size}

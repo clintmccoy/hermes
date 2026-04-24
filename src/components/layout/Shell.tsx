@@ -25,14 +25,7 @@ interface ShellProps {
   inspector?: React.ReactNode;
 }
 
-export function Shell({
-  activeNav,
-  onNav,
-  dealName,
-  breadcrumb,
-  children,
-  inspector,
-}: ShellProps) {
+export function Shell({ activeNav, onNav, dealName, breadcrumb, children, inspector }: ShellProps) {
   return (
     <div
       style={{
@@ -71,10 +64,7 @@ export function Shell({
           </span>
         </div>
 
-        <div
-          style={{ width: 1, height: 18, background: "var(--border)" }}
-          aria-hidden="true"
-        />
+        <div style={{ width: 1, height: 18, background: "var(--border)" }} aria-hidden="true" />
 
         {/* Breadcrumb */}
         {dealName && (
@@ -92,9 +82,7 @@ export function Shell({
                 <Icon name="chev-r" size={11} style={{ color: "var(--fg-3)" }} />
               </>
             )}
-            <span
-              style={{ font: "500 13px/1 var(--font-sans)", color: "var(--fg-1)" }}
-            >
+            <span style={{ font: "500 13px/1 var(--font-sans)", color: "var(--fg-1)" }}>
               {dealName}
             </span>
             <Icon name="chev-d" size={12} style={{ color: "var(--fg-3)" }} />
@@ -118,9 +106,7 @@ export function Shell({
           }}
         >
           <Icon name="search" size={13} style={{ color: "var(--fg-3)" }} />
-          <span
-            style={{ font: "400 12px/1 var(--font-sans)", color: "var(--fg-3)" }}
-          >
+          <span style={{ font: "400 12px/1 var(--font-sans)", color: "var(--fg-3)" }}>
             Search deals, fields, docs…
           </span>
           <span
@@ -229,9 +215,7 @@ export function Shell({
         </nav>
 
         {/* Main content */}
-        <main style={{ flex: 1, overflow: "auto", minWidth: 0 }}>
-          {children}
-        </main>
+        <main style={{ flex: 1, overflow: "auto", minWidth: 0 }}>{children}</main>
 
         {/* Inspector panel */}
         {inspector && (

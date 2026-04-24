@@ -16,9 +16,7 @@ export function KPI({ eyebrow, value, unit, sub, delta, hero }: KPIProps) {
         background: hero
           ? "linear-gradient(180deg, var(--accent-tint), rgba(208,115,30,0.02) 60%)"
           : "var(--surface-1)",
-        border: hero
-          ? "1px solid rgba(208,115,30,0.35)"
-          : "1px solid var(--border)",
+        border: hero ? "1px solid rgba(208,115,30,0.35)" : "1px solid var(--border)",
         borderRadius: "var(--radius-md)",
         padding: "14px 16px",
         display: "flex",
@@ -82,14 +80,8 @@ export function KPI({ eyebrow, value, unit, sub, delta, hero }: KPIProps) {
                 fontSize: 10.5,
                 padding: "1px 5px",
                 borderRadius: 2,
-                color:
-                  delta > 0
-                    ? "var(--positive)"
-                    : "var(--critical)",
-                background:
-                  delta > 0
-                    ? "var(--positive-tint)"
-                    : "var(--critical-tint)",
+                color: delta > 0 ? "var(--positive)" : "var(--critical)",
+                background: delta > 0 ? "var(--positive-tint)" : "var(--critical-tint)",
               }}
             >
               {delta > 0 ? "▲" : "▼"} {Math.abs(delta)}

@@ -138,37 +138,37 @@
   --spacing-16: 64px;
 
   /* Amber palette */
-  --color-amber-50: #FBEBD4;
-  --color-amber-100: #F4D09C;
-  --color-amber-200: #ECAE62;
-  --color-amber-300: #E08936;
-  --color-amber-400: #D0731E;
-  --color-amber-500: #B15E18;
-  --color-amber-600: #8B4712;
-  --color-amber-700: #5E2F0B;
+  --color-amber-50: #fbebd4;
+  --color-amber-100: #f4d09c;
+  --color-amber-200: #ecae62;
+  --color-amber-300: #e08936;
+  --color-amber-400: #d0731e;
+  --color-amber-500: #b15e18;
+  --color-amber-600: #8b4712;
+  --color-amber-700: #5e2f0b;
 
   /* Semantic colors — dark (default) */
-  --color-surface-0: #0C0F14;
+  --color-surface-0: #0c0f14;
   --color-surface-1: #141821;
-  --color-surface-2: #1A1F2A;
+  --color-surface-2: #1a1f2a;
   --color-surface-3: #222836;
-  --color-fg-1: #F5F2EC;
-  --color-fg-2: #B6B0A4;
-  --color-fg-3: #7C7668;
-  --color-border: #1F2430;
-  --color-border-strong: #2B3242;
-  --color-positive: #4AAD6F;
-  --color-caution: #D4A32E;
-  --color-critical: #D84A29;
-  --color-info: #6B8CB5;
+  --color-fg-1: #f5f2ec;
+  --color-fg-2: #b6b0a4;
+  --color-fg-3: #7c7668;
+  --color-border: #1f2430;
+  --color-border-strong: #2b3242;
+  --color-positive: #4aad6f;
+  --color-caution: #d4a32e;
+  --color-critical: #d84a29;
+  --color-info: #6b8cb5;
 
   /* Data viz */
-  --color-viz-1: #E6862B;
-  --color-viz-2: #4A90D9;
-  --color-viz-3: #4AAD6F;
-  --color-viz-4: #A576D8;
-  --color-viz-5: #2DB5B5;
-  --color-viz-6: #E9C547;
+  --color-viz-1: #e6862b;
+  --color-viz-2: #4a90d9;
+  --color-viz-3: #4aad6f;
+  --color-viz-4: #a576d8;
+  --color-viz-5: #2db5b5;
+  --color-viz-6: #e9c547;
 
   /* Motion */
   --duration-fast: 120ms;
@@ -183,33 +183,33 @@
 :root,
 .theme-dark {
   /* Surfaces — dark (default) */
-  --surface-0: #0C0F14;
+  --surface-0: #0c0f14;
   --surface-1: #141821;
-  --surface-2: #1A1F2A;
+  --surface-2: #1a1f2a;
   --surface-3: #222836;
-  --surface-inset: #0A0D12;
+  --surface-inset: #0a0d12;
   --scrim: rgba(0, 0, 0, 0.56);
 
   /* Foregrounds */
-  --fg-1: #F5F2EC;
-  --fg-2: #B6B0A4;
-  --fg-3: #7C7668;
-  --fg-inverse: #0C0F14;
+  --fg-1: #f5f2ec;
+  --fg-2: #b6b0a4;
+  --fg-3: #7c7668;
+  --fg-inverse: #0c0f14;
 
   /* Borders */
-  --border: #1F2430;
-  --border-strong: #2B3242;
+  --border: #1f2430;
+  --border-strong: #2b3242;
   --border-focus: rgba(195, 112, 42, 0.6);
 
   /* Amber accent */
-  --amber-50: #FBEBD4;
-  --amber-100: #F4D09C;
-  --amber-200: #ECAE62;
-  --amber-300: #E08936;
-  --amber-400: #D0731E;
-  --amber-500: #B15E18;
-  --amber-600: #8B4712;
-  --amber-700: #5E2F0B;
+  --amber-50: #fbebd4;
+  --amber-100: #f4d09c;
+  --amber-200: #ecae62;
+  --amber-300: #e08936;
+  --amber-400: #d0731e;
+  --amber-500: #b15e18;
+  --amber-600: #8b4712;
+  --amber-700: #5e2f0b;
   --amber-tint: rgba(208, 115, 30, 0.12);
 
   --accent: var(--amber-400);
@@ -219,22 +219,22 @@
   --accent-fg: #ffffff;
 
   /* Semantic */
-  --positive: #4AAD6F;
+  --positive: #4aad6f;
   --positive-tint: rgba(74, 173, 111, 0.16);
-  --caution: #D4A32E;
+  --caution: #d4a32e;
   --caution-tint: rgba(212, 163, 46, 0.18);
-  --critical: #D84A29;
+  --critical: #d84a29;
   --critical-tint: rgba(216, 74, 41, 0.18);
-  --info: #6B8CB5;
+  --info: #6b8cb5;
   --info-tint: rgba(107, 140, 181, 0.18);
 
   /* Data viz */
-  --viz-1: #E6862B;
-  --viz-2: #4A90D9;
-  --viz-3: #4AAD6F;
-  --viz-4: #A576D8;
-  --viz-5: #2DB5B5;
-  --viz-6: #E9C547;
+  --viz-1: #e6862b;
+  --viz-2: #4a90d9;
+  --viz-3: #4aad6f;
+  --viz-4: #a576d8;
+  --viz-5: #2db5b5;
+  --viz-6: #e9c547;
 
   /* Shadows */
   --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.28), 0 1px 2px rgba(0, 0, 0, 0.14);
@@ -242,20 +242,20 @@
 }
 
 .theme-light {
-  --surface-0: #F7F5F0;
-  --surface-1: #FFFFFF;
-  --surface-2: #FAF8F3;
-  --surface-3: #F0EDE5;
-  --surface-inset: #EDEAE1;
+  --surface-0: #f7f5f0;
+  --surface-1: #ffffff;
+  --surface-2: #faf8f3;
+  --surface-3: #f0ede5;
+  --surface-inset: #edeae1;
   --scrim: rgba(20, 15, 8, 0.32);
 
-  --fg-1: #15181E;
-  --fg-2: #5A5448;
-  --fg-3: #8C8574;
-  --fg-inverse: #FFFFFF;
+  --fg-1: #15181e;
+  --fg-2: #5a5448;
+  --fg-3: #8c8574;
+  --fg-inverse: #ffffff;
 
-  --border: #E4DFD4;
-  --border-strong: #CFC8B8;
+  --border: #e4dfd4;
+  --border-strong: #cfc8b8;
   --border-focus: rgba(195, 112, 42, 0.6);
 
   --amber-tint: rgba(195, 112, 42, 0.08);
@@ -265,16 +265,16 @@
   --accent-tint: var(--amber-tint);
   --accent-fg: #ffffff;
 
-  --positive: #357A50;
-  --positive-tint: rgba(53, 122, 80, 0.10);
-  --caution: #A07828;
+  --positive: #357a50;
+  --positive-tint: rgba(53, 122, 80, 0.1);
+  --caution: #a07828;
   --caution-tint: rgba(160, 120, 40, 0.12);
-  --critical: #9F3722;
-  --critical-tint: rgba(159, 55, 34, 0.10);
-  --info: #4A6278;
-  --info-tint: rgba(74, 98, 120, 0.10);
+  --critical: #9f3722;
+  --critical-tint: rgba(159, 55, 34, 0.1);
+  --info: #4a6278;
+  --info-tint: rgba(74, 98, 120, 0.1);
 
-  --shadow-1: 0 4px 12px rgba(20, 15, 8, 0.10), 0 1px 2px rgba(20, 15, 8, 0.06);
+  --shadow-1: 0 4px 12px rgba(20, 15, 8, 0.1), 0 1px 2px rgba(20, 15, 8, 0.06);
   --shadow-2: 0 16px 48px rgba(20, 15, 8, 0.14), 0 4px 12px rgba(20, 15, 8, 0.08);
 }
 
@@ -420,21 +420,45 @@ code {
 .t-num {
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-feature-settings:
+    "tnum" 1,
+    "lnum" 1;
 }
 
 /* ---- Color helpers ------------------------------------------------------- */
 
-.fg-1 { color: var(--fg-1); }
-.fg-2 { color: var(--fg-2); }
-.fg-3 { color: var(--fg-3); }
-.fg-accent { color: var(--accent); }
-.fg-positive { color: var(--positive); }
-.fg-caution { color: var(--caution); }
-.fg-critical { color: var(--critical); }
+.fg-1 {
+  color: var(--fg-1);
+}
+.fg-2 {
+  color: var(--fg-2);
+}
+.fg-3 {
+  color: var(--fg-3);
+}
+.fg-accent {
+  color: var(--accent);
+}
+.fg-positive {
+  color: var(--positive);
+}
+.fg-caution {
+  color: var(--caution);
+}
+.fg-critical {
+  color: var(--critical);
+}
 
-.bg-surface-0 { background: var(--surface-0); }
-.bg-surface-1 { background: var(--surface-1); }
-.bg-surface-2 { background: var(--surface-2); }
+.bg-surface-0 {
+  background: var(--surface-0);
+}
+.bg-surface-1 {
+  background: var(--surface-1);
+}
+.bg-surface-2 {
+  background: var(--surface-2);
+}
 
-.border-hair { border: 1px solid var(--border); }
+.border-hair {
+  border: 1px solid var(--border);
+}

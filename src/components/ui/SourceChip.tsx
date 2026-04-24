@@ -21,11 +21,7 @@ export function SourceChip({ kind = "pdf", name, page }: SourceChipProps) {
         color: "var(--fg-2)",
       }}
     >
-      <Icon
-        name={kind === "xlsx" ? "sheet" : "file"}
-        size={12}
-        style={{ opacity: 0.65 }}
-      />
+      <Icon name={kind === "xlsx" ? "sheet" : "file"} size={12} style={{ opacity: 0.65 }} />
       <span style={{ color: "var(--fg-1)" }}>{name}</span>
       {page && (
         <span

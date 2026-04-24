@@ -1,10 +1,4 @@
-type BadgeTone =
-  | "neutral"
-  | "accent"
-  | "positive"
-  | "caution"
-  | "critical"
-  | "info";
+type BadgeTone = "neutral" | "accent" | "positive" | "caution" | "critical" | "info";
 
 interface BadgeProps {
   tone?: BadgeTone;
@@ -13,10 +7,7 @@ interface BadgeProps {
   className?: string;
 }
 
-const TONE_STYLES: Record<
-  BadgeTone,
-  { bg: string; fg: string; bd: string }
-> = {
+const TONE_STYLES: Record<BadgeTone, { bg: string; fg: string; bd: string }> = {
   neutral: { bg: "var(--surface-3)", fg: "var(--fg-2)", bd: "var(--border)" },
   accent: {
     bg: "var(--accent-tint)",

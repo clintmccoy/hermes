@@ -4,10 +4,7 @@ interface ConfChipProps {
   level: ConfLevel;
 }
 
-const CONF_STYLES: Record<
-  ConfLevel,
-  { bg: string; fg: string; bd: string; label: string }
-> = {
+const CONF_STYLES: Record<ConfLevel, { bg: string; fg: string; bd: string; label: string }> = {
   high: {
     bg: "rgba(53,122,80,0.10)",
     fg: "var(--positive)",
