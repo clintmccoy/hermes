@@ -48,8 +48,20 @@ const CreateDealSchema = z.object({
   // TODO(MMC-22): remove from public API once auth lands.
   // These will be derived from the authenticated session (org_id from
   // user_metadata, created_by from auth.uid()).
-  org_id: z.string().uuid("org_id must be a valid UUID"),
-  created_by: z.string().uuid("created_by must be a valid UUID"),
+  // Loose format check — our dev test UUIDs use non-RFC-4122 variant nibbles
+  // so we skip Zod's strict uuid() validator here for the bypass period.
+  org_id: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "org_id must be a valid UUID",
+    ),
+  created_by: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "created_by must be a valid UUID",
+    ),
 });
 
 // ── Derived fields ─────────────────────────────────────────────────────────────
