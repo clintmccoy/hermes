@@ -529,14 +529,12 @@ function UploadTray({
 
 type SubmitPhase = "idle" | "creating" | "uploading" | "upload-error";
 
-function submitLabel(phase: SubmitPhase, fileCount: number, failCount: number): string {
+function submitLabel(phase: SubmitPhase, fileCount: number): string {
   switch (phase) {
     case "creating":
       return "Creating…";
     case "uploading":
       return `Uploading ${fileCount} file${fileCount !== 1 ? "s" : ""}…`;
-    case "upload-error":
-      return `Deal created — ${failCount} upload${failCount !== 1 ? "s" : ""} failed`;
     default:
       return "Create deal";
   }
@@ -562,7 +560,8 @@ export default function NewDealPage() {
   // ── Submit state ───────────────────────────────────────────────────────────
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>("idle");
   const [apiError, setApiError] = useState<string | null>(null);
-  const [uploadFailCount, setUploadFailCount] = useState(0);
+  // Saved after deal creation so "Go to deal" works even when uploads fail.
+  const [createdDealId, setCreatedDealId] = useState<string | null>(null);
 
   const submitting = submitPhase !== "idle";
 
@@ -692,6 +691,8 @@ export default function NewDealPage() {
       }
 
       ({ deal_id: dealId } = await res.json());
+      // Save early so "Go to deal" works if uploads later fail.
+      setCreatedDealId(dealId);
     } catch {
       setApiError("Network error — please try again.");
       setSubmitPhase("idle");
@@ -705,10 +706,11 @@ export default function NewDealPage() {
       const failCount = results.filter((ok) => !ok).length;
 
       if (failCount > 0) {
-        setUploadFailCount(failCount);
+        setApiError(
+          `${failCount} file${failCount !== 1 ? "s" : ""} failed to upload. Your deal was created — you can retry from the deal page.`,
+        );
         setSubmitPhase("upload-error");
-        // Non-blocking: deal exists. Redirect after 2 s.
-        setTimeout(() => router.push(`/deals/${dealId}`), 2000);
+        // No auto-redirect: let the user read the error and navigate manually.
         return;
       }
     }
@@ -871,23 +873,37 @@ export default function NewDealPage() {
                 marginTop: 8,
               }}
             >
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => router.push("/deals")}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                disabled={submitting}
-              >
-                {submitLabel(submitPhase, staged.length, uploadFailCount)}
-              </Button>
+              {submitPhase === "upload-error" && createdDealId ? (
+                // Upload failed but deal exists — only action is to proceed.
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  onClick={() => router.push(`/deals/${createdDealId}`)}
+                >
+                  Go to deal →
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="md"
+                    onClick={() => router.push("/deals")}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    disabled={submitting}
+                  >
+                    {submitLabel(submitPhase, staged.length)}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </form>
