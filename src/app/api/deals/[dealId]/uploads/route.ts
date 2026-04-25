@@ -54,7 +54,14 @@ const UploadRequestSchema = z.object({
 
   // TODO(MMC-22): remove from public API once auth lands.
   // Will be derived from the authenticated session (auth.uid()).
-  uploaded_by: z.string().uuid("uploaded_by must be a valid UUID"),
+  // Loose format check — mirrors the bypass-period relaxation in POST /api/deals.
+  // Dev UUIDs may use non-RFC-4122 variant nibbles, so .uuid() is too strict here.
+  uploaded_by: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "uploaded_by must be a valid UUID",
+    ),
 });
 
 // ── Route handler ─────────────────────────────────────────────────────────────
