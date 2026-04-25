@@ -894,12 +894,7 @@ export default function NewDealPage() {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    disabled={submitting}
-                  >
+                  <Button type="submit" variant="primary" size="md" disabled={submitting}>
                     {submitLabel(submitPhase, staged.length)}
                   </Button>
                 </>
