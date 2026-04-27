@@ -15,6 +15,9 @@ const ICON_PATHS: Record<string, string> = {
   file: "M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5z M14 3v5h5",
   sheet: "M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M3 9h18 M9 3v18",
   filter: "M3 5h18l-7 9v5l-4 1v-6z",
+  x: "M18 6L6 18 M6 6l12 12",
+  spinner:
+    "M12 2v4 M12 18v4 M4.93 4.93l2.83 2.83 M16.24 16.24l2.83 2.83 M2 12h4 M18 12h4 M4.93 19.07l2.83-2.83 M16.24 7.76l2.83-2.83",
 };
 
 interface IconProps {
