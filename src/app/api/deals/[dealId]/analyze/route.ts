@@ -64,7 +64,15 @@ const ACTIVE_JOB_STATUSES = ["queued", "running"] as const;
 const AnalyzeRequestSchema = z.object({
   // TODO(MMC-22): remove from public API once auth lands.
   // Will be derived from the authenticated session (auth.uid()).
-  user_id: z.string().uuid("user_id must be a valid UUID"),
+  // Loose format check — mirrors the bypass-period relaxation in POST
+  // /api/deals and the uploads route. Dev UUIDs use non-RFC-4122 variant
+  // nibbles, so Zod's strict .uuid() rejects them.
+  user_id: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "user_id must be a valid UUID",
+    ),
 });
 
 // ── Route handler ─────────────────────────────────────────────────────────────
