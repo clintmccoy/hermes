@@ -63,3 +63,8 @@ next-env.d.ts
 *\ 2.md
 *\ 2.tsx
 *\ 2.ts
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/

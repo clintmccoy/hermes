@@ -17,7 +17,7 @@
  * - source_page_number: page the value was found on
  */
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin, emitEvent, EventSequencer } from "../lib/events";
 import { createAdvisorState, runWithAdvisor, type AdvisorState } from "../lib/advisor";
