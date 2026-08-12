@@ -44,7 +44,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { tasks } from "@trigger.dev/sdk";
 import { z } from "zod";
 import type { Database } from "@/lib/supabase/database.types";
 import { analysisJobTask } from "@/trigger/analysis-job";

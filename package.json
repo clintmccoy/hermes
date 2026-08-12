@@ -22,7 +22,7 @@
     "@google-cloud/documentai": "^9.6.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.0",
-    "@trigger.dev/sdk": "^3.3.17",
+    "@trigger.dev/sdk": "^4.5.10",
     "next": "^16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

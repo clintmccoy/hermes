@@ -13,7 +13,7 @@
  * ADR 010: Partial extraction is a graceful degradation path, not a failure.
  */
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk";
 import { getSupabaseAdmin, emitEvent, EventSequencer } from "../lib/events";
 import { extractDocument } from "../lib/document-ai";
 import type { IngestionResult } from "../lib/types";

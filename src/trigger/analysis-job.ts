@@ -28,7 +28,7 @@
  * token counts, and gate confirmation timestamps. ADR 010 non-negotiable.
  */
 
-import { task, wait } from "@trigger.dev/sdk/v3";
+import { task, wait } from "@trigger.dev/sdk";
 import { getSupabaseAdmin, emitEvent, EventSequencer } from "./lib/events";
 import { documentIngestionTask } from "./subtasks/document-ingestion";
 import { extractionTask } from "./subtasks/extraction";
