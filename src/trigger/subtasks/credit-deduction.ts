@@ -14,7 +14,7 @@
  *   on idempotency_key
  */
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk";
 import { getSupabaseAdmin, emitEvent, EventSequencer } from "../lib/events";
 import type { AnalysisDepth } from "../lib/types";
 

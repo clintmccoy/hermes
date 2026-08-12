@@ -11,7 +11,7 @@
  * ADR 010 Decision 2: Advisor is invoked when asset class is novel or multi-mechanism.
  */
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin, emitEvent, EventSequencer } from "../lib/events";
 import { createAdvisorState, runWithAdvisor, type AdvisorState } from "../lib/advisor";
